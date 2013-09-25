@@ -1,0 +1,1 @@
+<input type="checkbox" value="<?php echo $this->element->value; ?>"<?php if ($this->element->checked): ?> checked="checked"<?php endif; ?> />
