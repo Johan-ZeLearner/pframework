@@ -91,17 +91,4 @@ class ObjectPublisher
         // End of program - will be on air tomorrow at 7:00 am
         die();
     }
-
-
-    public function getExecutionTime()
-    {
-        global $nStart;
-        global $nEnd;
-        
-        $nEnd = microtime(true);
-
-        $asTime = array('start' => $nStart, 'end' => $nEnd);
-
-        \P\lib\framework\themes\ThemeManager::setVar('time', $asTime);
-    }
 }

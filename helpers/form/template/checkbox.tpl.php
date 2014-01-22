@@ -1,1 +1,1 @@
-<input type="checkbox" value="<?php echo $this->element->value; ?>"<?php if ($this->element->checked): ?> checked="checked"<?php endif; ?> />
+<input type="checkbox" value="<?php echo $this->element->value; ?>"<?php if (isset($this->element->checked) && $this->element->checked): ?> checked="checked"<?php endif; ?> />

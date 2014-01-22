@@ -48,9 +48,9 @@ class Route implements interfaces\isSingleton
             $sController            = system\PathFinder::tableToShortname($sController);
             $sUrl                   = false;
             
-            $oController = system\ClassManager::getInstance($sController);
+            $oController = system\ClassManager::getInstance($sController, system\ClassManager::CONTROLLER_URL);
             
-            if ($oController instanceof interfaces\HaveSmartUrl)
+            if (is_object($oController) && $oController instanceof interfaces\HaveSmartUrl)
             {
                 $sUrl = $oController->getRewritePath($poUrl);
             }

@@ -42,7 +42,7 @@ class Form
 	{
             $this->setMethod('POST');
             $this->setAction(\P\Url());
-            $this->setParam('_class', 'form-horizontal');
+            $this->setParam('_class', system\Settings::getParam('form', 'class', 'form-horizontal'));
             $sFormId = $this->getId();
             
             $this->initializeFormTemplating();
@@ -249,6 +249,25 @@ class Form
             if (isset($pasField['value']))
                 $oField->value = $pasField['value'];
             
+            if (isset($pasField['foreign_table']))
+                $oField->setForeignTable($pasField['foreign_table']);
+            
+            if (isset($pasField['foreign_field']))
+                $oField->setForeignField($pasField['foreign_field']);
+            
+            if (isset($pasField['foreign_field_label']))
+                $oField->setForeignLabelField($pasField['foreign_field_label']);
+            
+            if (isset($pasField['custom'])) // 2 possibilities for custom data
+                $oField->addCustomData($pasField['custom']);
+            elseif (isset($pasField['customData'])) //
+                $oField->addCustomData($pasField['customData']);
+//            else
+//                utils\Debug::e ('pas de custom pour '.$pasField['name']);
+            
+//            if ($pasField['name'] == 'active')
+//                utils\Debug::e ($oField);
+            
             $this->addField($oField);
         }
 
@@ -299,6 +318,7 @@ class Form
 	public function getForm()
 	{
             $this->addThemeVar('params', \P\lib\framework\helpers\Params::serialize($this->_params, '_'));
+            
             
             $oSubmit            = new \stdClass();
             $oSubmit->value     = 'valider';

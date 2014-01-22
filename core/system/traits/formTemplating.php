@@ -22,6 +22,18 @@ trait formTemplating
     
     public function display($psFile)
     {
+        if ($this->theme->exists('forms/'.$psFile))
+        {
+//            \P\lib\framework\core\utils\Debug::e('forms/'.$psFile.' EXISTE');
+            return $this->theme->display('forms/'.$psFile);
+        }
+        else
+        {
+            
+//            die('existe pas : forms/'.$psFile);
+            
+        }
+        
         return $this->theme->display(__DIR__.'/../../../helpers/form/template/'.$psFile, true);
     }
 }

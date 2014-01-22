@@ -52,6 +52,7 @@ class DbResponse
 	public function reset()
 	{
 	    $this->_cursor = 0;
+            return $this;
 	}
 	
 	
@@ -64,13 +65,20 @@ class DbResponse
 	 *
 	 * @param String $psData
 	 */
+        public function next($psData=RESPONSE_RAW)
+        {
+            return $this->readNext($psData);
+        }
+        
+        
+        
 	public function readNext($psData=RESPONSE_ALL)
 	{
 	  //  if (isset($this->_response[0]->count)) return $this->_handleCount();
             if (isset($this->_response[$this->_cursor]))
             {
                 self::$_row->setCursor($this->_cursor);
-                
+                self::$_row  = new RowResponse('', 0);
                 foreach ($this->_response[$this->_cursor] as $sField => $sValue)
                 {
                     if (isset($this->_scheme->$sField))

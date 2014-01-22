@@ -44,10 +44,9 @@ abstract class Element
     {
         if ($this instanceof Hidden) return $this->getField();
         
-        $sLabel =  $this->_label;
         if ($this->required)
         {
-            $sLabel = \P\tag('strong', $this->_label.' *');
+            $this->_label = \P\tag('strong', $this->_label.' *');
             $this->_params['required'] = '';
         }
         
@@ -57,14 +56,19 @@ abstract class Element
         $oField = $this->getField();
 
         // Template
-        $this->addThemeVar('label', $sLabel);
+        $this->addThemeVar('label', $this->_label);
         $this->addThemeVar('error', $this->_getErrorMessage());
         $this->addThemeVar('description', $this->_getDescription());
+        $this->addThemeVar('customData', $this->_getCustomData());
+        
         
         if (is_object($oField))
             $this->addThemeVar('field', $oField->__toString());
         else
             $this->addThemeVar('field', $oField);
+        
+        if ($this->simple)
+            return $oField;
         
         $this->theme->element = $this->_themeValues;
         
@@ -189,6 +193,11 @@ abstract class Element
     protected function _getDescription()
     {
         return '<p class="help-block">'.$this->_field->description.'</p>'."\n";
+    }
+
+    protected function _getCustomData()
+    {
+        return $this->_field->customData;
     }
     
     protected function _getPlaceHolder()

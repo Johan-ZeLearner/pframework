@@ -5,28 +5,36 @@ use P\lib\framework\core\system as system;
 class ThemeManager extends \P\lib\extra\Savant3\Savant3
 {
     static $_self;
-    static $_sTheme         = '';
-    static $_sLayout        = '';
+    static $_sTheme             = '';
+    static $_sLayout            = '';
     static $_hook;
-    static $path_set        = false;
-    static $is_ajax         = false;
-    static $is_simple       = false;
-    static $is_simple_noscript       = false;
-    static $debugMessage    = '';
+    static $path_set            = false;
+    static $is_ajax             = false;
+    static $is_simple           = false;
+    static $is_simple_noscript  = false;
+    static $debugMessage        = '';
     
     public static function load()
     {
         if (!self::$_self instanceof ThemeManager)
+        {
             self::$_self = new ThemeManager ();
-        
+        }
+
         return self::$_self;
     }
     
     
     public static function setTheme($psTheme='default')
     {
-        if (empty(self::$_sTheme) || self::$_sTheme == 'default')
-            self::$_sTheme = $psTheme;
+        if (self::$_sTheme != $psTheme)
+        {
+            if (empty(self::$_sTheme) || self::$_sTheme == 'default')
+                self::$_sTheme = $psTheme;
+
+            self::loadSettings();
+            self::loadDependancies();
+        }
     }
     
     
@@ -36,19 +44,42 @@ class ThemeManager extends \P\lib\extra\Savant3\Savant3
     }
     
     
-    protected function _getPath()
+    public function _getPath()
     {
         $sPublic = '';
         if ((bool) system\Settings::getParam('path', 'public', true))
             $sPublic = 'public/';
                 
-        return system\PathFinder::getRootDir().$sPublic.'themes/'.self::$_sTheme.'/';
+        return system\PathFinder::getRootDir().$sPublic.self::getStaticPath();
     }
 
     
     public function getPath()
     {
         return $this->_getPath();
+    }
+    
+    
+    public static function getStaticPath()
+    {
+        return 'themes/'.self::$_sTheme.'/';
+    }
+    
+    
+    public function exists($tpl, $pbFullPath=false)
+    {
+        $sPath = '';
+        if (!$pbFullPath)
+            $sPath = $this->_getPath();
+        
+        $sTemplate = $sPath.$tpl;
+        
+//        \P\lib\framework\core\utils\Debug::e($sTemplate);
+        
+        if (is_readable($sTemplate))
+            return true;
+        
+        return false;
     }
 
     
@@ -141,6 +172,11 @@ class ThemeManager extends \P\lib\extra\Savant3\Savant3
         self::$is_ajax = true;
     }
     
+    public static function disableAjax()
+    {
+        self::$is_ajax = false;
+    }
+    
     
     public static function setSimple()
     {
@@ -165,6 +201,44 @@ class ThemeManager extends \P\lib\extra\Savant3\Savant3
     {
         $sPath = '/themes/'.self::$_sTheme.'/js/'.$psFile;
         \P\lib\framework\helpers\JSManager::addFile($sPath);
+    }
+    
+    public function getExecutionTime()
+    {
+        global $nStart;
+        global $nEnd;
+        
+        $nEnd = microtime(true);
+
+        $asTime = array('start' => $nStart, 'end' => $nEnd);
+
+        self::setVar('time', $asTime);
+    }
+    
+    
+    public static function loadDependancies()
+    {
+        $dependancies = system\PathFinder::getRootDir('public').\P\themePath().'config/dependancies.php';
+        if (is_readable($dependancies))
+        {
+            require($dependancies);
+        }
+    }
+    
+    public static function loadSettings()
+    {
+        $sConfigPath = system\PathFinder::getRootDir('public').\P\themePath().'config/config.ini';
+        
+        if (is_readable($sConfigPath))
+        {
+            system\Settings::loadFile($sConfigPath);
+        }
+    }
+    
+    
+    public static function getParam($section, $param, $default=0)
+    {
+        return system\Settings::getParam($section, $param, $default);
     }
 }
 ?>

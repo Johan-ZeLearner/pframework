@@ -21,7 +21,8 @@ class Url
 	private $_simple 	= false;
 	static $_simpleOn	= false;
 	static $_short		= false;
-        public $render           = true;
+        public $render          = true;
+        public $displayHost     = true;
 
 
         /**
@@ -145,6 +146,14 @@ class Url
 		
 		return $this;
 	}
+        
+        
+        public function removeParam($psParam)
+        {
+            unset($this->_asParams[$psParam]);
+            
+            return $this;
+        }
 	
 	
 	/**
@@ -232,6 +241,11 @@ class Url
                 if (count($this->_asParams) > 0 && $sUrl{(strlen($sUrl) - 1)} == '&')
                     $sUrl = substr ($sUrl, 0, -1);
             }
+            
+            if (!$this->displayHost)
+            {
+                $sUrl = str_replace(system\PathFinder::getBaseHref(), '', $sUrl);
+            }
 
 
             return $sUrl;
@@ -316,5 +330,12 @@ class Url
 		
 		self::$_short = false;
 	}
+        
+        
+        public function noHost()
+        {
+            $this->displayHost = false;
+            return $this;
+        }
 	
 }

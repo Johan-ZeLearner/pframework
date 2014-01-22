@@ -335,7 +335,7 @@ class Image
         
         $this->imagick->writeImage($psOutput);
         
-        chmod($psOutput, 0777);
+        @chmod($psOutput, 0777);
         
         $sReturn = str_replace($sRoot, '/'.$this->outputPath, $psOutput);
 

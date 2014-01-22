@@ -7,18 +7,49 @@ trait readajax
 {
     use read;
     
-    protected $editable;
-    protected $deletable;
-    protected $columnType = array();
-    protected $readajax_customConditions = array();
-    
+    protected   $editable;
+    protected   $deletable;
+    protected   $columnType = array();
+    protected   $readajax_customConditions = array();
+    protected   $tableOnly = false;
+    protected   $readajax_customjs;
+    public      $readajax_htmlHeader = '';
+    public      $readajax_htmlFooter = '';
     
     public function read()
     {
-        $this->theme->actions               = $this->_getActions();
         $this->theme->title                 = $this->_getTitle('index');
         $this->theme->searchable            = $this->_handleSerchableForDisplay();
         $this->theme->searchable_custom     = $this->_handleCustomSerchableForDisplay();
+        $this->theme->table_only            = false;
+        $this->theme->columnDefs            = '';
+        $this->theme->readajax_htmlHeader   = '';
+        $this->theme->readajax_htmlFooter   = '';
+        
+        $this->setTableOptions();
+        
+        $this->theme->actions               = $this->_getActions();
+        $this->theme->tableHeader           = $this->readajax_getTableHeader(true, true);
+        $this->theme->fields                = $this->readajax_getFieldNames();
+        $this->theme->ajaxSource            = $this->readajax_getAjaxSource();
+        $this->theme->readajax_customjs     = '';
+        
+        // HTML HEADER
+        $this->readajax_headerHtml();
+        $this->readajax_FooterHtml();
+        
+        // code ajax supplémentaire
+        $this->readajax_addJs();
+        
+        $this->theme->controller     = $this;
+        
+        return $this->theme->display($this->getReadAjaxTemplate());
+    }
+    
+    
+    public function executeDatatableAsWidget()
+    {
+        $this->theme->table_only            = true;
         
         $this->setTableOptions();
         
@@ -32,11 +63,10 @@ trait readajax
         // code ajax supplémentaire
         $this->readajax_addJs();
         
-        
         $this->theme->controller     = $this;
-        
-        return $this->theme->display($this->getReadAjaxTemplate());
     }
+    
+    
     
     protected function readajax_getSalt()
     {
@@ -100,9 +130,14 @@ trait readajax
     }
     
     
+    public function readajax_FooterHtml()
+    {
+        $this->theme->readajax_htmlFooter = '';
+    }
+    
+    
     protected function readajax_addJs()
     {
-        
     }
     
     
@@ -200,10 +235,10 @@ trait readajax
             }
             
             if ($this->editable)
-                $asLine[] = \P\tag('a', '<i class="icon icon-edit"></i>', array('href' => \P\url('', 'update')->setParam('key', $oRecord->$sPrimary)))->__toString();
+                $asLine[] = \P\tag('a', '<i class="'.  \P\getSetting('icon', 'edit', 'icon icon-edit').'"></i> Modifier', array('href' => \P\url('', 'update')->setParam('key', $oRecord->$sPrimary)))->__toString();
             
             if ($this->deletable)
-                $asLine[] = \P\tag('a', '<i class="icon icon-remove"></i>', array('href' => \P\url('', 'delete')->setParam('key', $oRecord->$sPrimary)))->__toString();
+                $asLine[] = \P\tag('a', '<i class="'.  \P\getSetting('icon', 'delete', 'icon icon-remove').'"></i> Suppr', array('href' => \P\url('', 'delete')->setParam('key', $oRecord->$sPrimary)))->__toString();
             
             $this->readAjax_addCustomColumns($asLine, $oRecord);
             
@@ -298,7 +333,9 @@ trait readajax
         if (isset($this->columnType[$pnColumnIndex]))
             $sType = $this->columnType[$pnColumnIndex];
         
-        $sValue = $poRecord->$psField;
+        $sValue = '';
+        if (isset($poRecord->$psField))
+            $sValue = $poRecord->$psField;
         
         switch($sType)
         {
@@ -308,6 +345,11 @@ trait readajax
             
             case 'date':
                 return utils\Date::toDisplay($sValue, true);
+                break;
+            
+            case 'bool':
+            case 'boolean':
+                return ((int)$sValue == 1) ? 'Oui' : 'Non';
                 break;
             
             case 'datetime':
@@ -379,4 +421,6 @@ trait readajax
     {
         return $this->model->getPrimary().' DESC';
     }
+    
+    
 }

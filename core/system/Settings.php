@@ -15,12 +15,12 @@ class Settings
 	 */
 	public static function getParam($psSection, $psParam, $psDefault='')
 	{
-		self::checkSettings();
-		
-		if (isset(self::$_settings[$psSection][$psParam]))
-			return self::$_settings[$psSection][$psParam];
-		else
-			return $psDefault;
+            self::checkSettings();
+
+            if (isset(self::$_settings[$psSection][$psParam]))
+                return self::$_settings[$psSection][$psParam];
+            else
+                return $psDefault;
 	}
 	
 	
@@ -44,32 +44,43 @@ class Settings
 	 */
 	public static function checkSettings()
 	{
-		if (!is_array(self::$_settings))
-		{
-			if (!self::$_settings = parse_ini_file('../config/config.ini', true))
-				throw new \Exception('Unable to open ' . '../config/config.ini' . '.');
-		}
+            if (!is_array(self::$_settings))
+            {
+                if (!self::$_settings = parse_ini_file('../config/config.ini', true))
+                    throw new \Exception('Unable to open ' . '../config/config.ini' . '.');
+            }
 	}
+        
+        
+        public static function loadFile($path)
+        {
+            if (is_readable($path))
+            {
+                $asNew = parse_ini_file($path, true);
+
+                self::$_settings = array_merge(self::$_settings, $asNew);
+            }
+        }
 	
 	
 	public static function configureStartup()
 	{
-		// if the user is not logged, we try to unset the HOST_URL cache
-		if (!isset($_SESSION['login']))
-		{
-			if (isset($_SESSION['HOST_URL']))
-				unset($_SESSION['HOST_URL']);	// empty the HOST_URL cache
-		}
-		
-		if (isset($_SESSION['HOST_URL']))
-			$sHost = $_SESSION['HOST_URL'];
-		else
-		{
-			$sHttp = self::getCompleteURL();
-			$sHost = substr($sHttp, 0, (strlen($sHttp) - 1));
-		
-			Session::set('HOST_URL', $sHost);
-		}
+            // if the user is not logged, we try to unset the HOST_URL cache
+            if (!isset($_SESSION['login']))
+            {
+                if (isset($_SESSION['HOST_URL']))
+                    unset($_SESSION['HOST_URL']);	// empty the HOST_URL cache
+            }
+
+            if (isset($_SESSION['HOST_URL']))
+                $sHost = $_SESSION['HOST_URL'];
+            else
+            {
+                $sHttp = self::getCompleteURL();
+                $sHost = substr($sHttp, 0, (strlen($sHttp) - 1));
+
+                Session::set('HOST_URL', $sHost);
+            }
 	}
 	
 

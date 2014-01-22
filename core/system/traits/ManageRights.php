@@ -17,12 +17,15 @@ trait ManageRights
         {
             $oRights = system\ClassManager::getInstance('rights');
             
-            return $oRights->checkAccessByUser(system\PathFinder::getClassShortName(get_class()), $psAction, $nUserFK);
+            if (is_object($oRights))
+            {
+                return $oRights->checkAccessByUser($this->model->_table, $psAction, $nUserFK);
+            }
         }
         else 
         {
             system\Session::set('REDIRECT_URL', \P\url()->__toString());
-            \P\lib\framework\core\utils\Http::redirect(\P\url('employee', 'login'));
+            \P\lib\framework\core\utils\Http::redirect(\P\url('member', 'login'));
         }
         
         return false;

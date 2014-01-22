@@ -282,9 +282,15 @@ abstract class Dal
 	 */
 	public function selectByPK($pnPK, $pbDebug=false)
 	{
-	    $oDbResponse = $this->select('', $this->getPrimary().'='.(int) $pnPK, '', $pbDebug);
-	    $oDbResponse->render = false;
-	    return $oDbResponse->readNext();
+            $pnPK = (int) $pnPK;
+            if ($pnPK > 0)
+            {
+                $oDbResponse = $this->select('', $this->getPrimary().'='.(int) $pnPK, '', $pbDebug);
+                $oDbResponse->render = false;
+                return $oDbResponse->readNext();
+            }
+            
+            return false;
 	}
 	
 	

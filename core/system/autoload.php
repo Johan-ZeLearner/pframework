@@ -1,5 +1,4 @@
 <?php
-require 'PathFinder.php';
 
 function __autoload($psClassName)
 {
@@ -26,6 +25,9 @@ function __autoload($psClassName)
     try
     {
         $sPath = \P\lib\framework\core\system\PathFinder::classToPath($psClassName);
+        
+//        echo 'class to path : '.$sPath.'<br />';
+        
     }
     catch (\ErrorException $e)
     {
@@ -33,17 +35,11 @@ function __autoload($psClassName)
         die();
     }
 
-    if (is_file($sPath))
+    
+    if (is_readable($sPath))
     {
+//        echo 'chargé : '.$sPath.' <br />';
         require $sPath;
-    }
-    elseif(preg_match('/imagine/i', $psClassName))
-    {
-
-        $sPath = P\lib\framework\core\system\PathFinder::getRootDir().str_replace('\\', '/', $psClassName).'.php';
-        if (file_exists($sPath)) {
-            include $sPath;
-        }
     }
     else
     {

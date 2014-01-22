@@ -17,14 +17,33 @@ abstract class Controller extends Object implements interfaces\isCallable
     public      $context;
     protected   $_oRights;
     static      $oaClasses = array();
+    public      $breadcrumb = array('Accueil', 'chemin non paramétré');
 
 
-    public function __construct()
+    public function __construct($poModel='')
     {
         $this->theme    = \P\lib\framework\themes\ThemeManager::load();
 
+        if (is_object($poModel))
+            $this->model = $poModel;
+        
         return parent::__construct();
     }
+    
+    
+    public function getBreadCrumb()
+    {
+        $this->theme->breadcrumb = $this->returnBreadCrumb(\P\get('action', 'index'));
+        
+        return $this->theme->display('breadcrumb.tpl.php');
+    }
+    
+    
+    public function returnBreadCrumb($action, $key=0)
+    {
+        return $this->breadcrumb;
+    }
+    
     
     
     public function info()
@@ -52,13 +71,15 @@ abstract class Controller extends Object implements interfaces\isCallable
     
     public function __call($name, $arguments)
     {
-        foreach(self::$oaClasses as $oObject)
+        foreach(self::$oaClasses as $sName => $oObject)
         {
             if (method_exists($oObject, $name))
             {
-                return $oObject->$name($arguments);
+                return call_user_func_array(array($oObject, $name), $arguments);
             }
         }
+        
+      
         
         throw new \ErrorException('Method '.get_called_class().'::'.$name.' is undefined');
         
@@ -66,8 +87,23 @@ abstract class Controller extends Object implements interfaces\isCallable
     }
 
 
-    public function getTitle($psName, $psAction)
+    public function getTitle($psName='', $psAction='')
     {
+        utils\Debug::e('TEST');
+        
+        if (empty($psName) && empty($psAction))
+        {
+            $sTitle =  $this->_getTitle (\P\get ('action', 'index'));
+        
+            if (!empty($sTitle)) return $sTitle;
+        }        
+        
+        if (empty($psName))
+            $psName = \P\get(CONTROLLER);
+            
+        if (empty($psAction))
+            $psAction = \P\get(ACTION);
+        
         return ucfirst($psName).' : '.$psAction;
     }
 
@@ -135,7 +171,7 @@ abstract class Controller extends Object implements interfaces\isCallable
                 break;
         }
         
-        return ;
+        return '';
    }
    
    
@@ -169,7 +205,7 @@ abstract class Controller extends Object implements interfaces\isCallable
    
     protected function _ajaxCustomCall($psAjax)
     {
-        return true;
+        return json_encode(array('type' => 'error', 'message' => 'AbstractController : no ajax output'));
     }
     
    
@@ -192,14 +228,19 @@ abstract class Controller extends Object implements interfaces\isCallable
     }
     
     
-    
     public static function registerClass($poObject)
     {
-        self::$oaClasses[] = $poObject;
+        if (!isset(self::$oaClasses[$poObject->getName()]))
+            self::$oaClasses[$poObject->getName()] = $poObject;
+        else
+            unset ($poObject);
+            
     }
     
     
     
-    
-    
+    public function loadFormData($psType, $oForm)
+    {
+        return true;
+    }
 }

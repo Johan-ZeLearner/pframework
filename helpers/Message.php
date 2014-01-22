@@ -19,7 +19,7 @@ class Message
 {
     static $_asMessages;
     
-    public static function _message($psType, $psMessage, $psTitle='', $pbCloseable=false)
+    public static function _message($psType, $psMessage, $psTitle='', $pbCloseable=true)
     {
         switch($psType)
         {

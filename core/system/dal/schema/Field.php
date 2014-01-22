@@ -38,6 +38,7 @@ class Field
     public $options 			= array(); // various options of the field
     public $placeholder                     = '';   // value of the field placeholder
     public $inputType                       = 'text';   // value of the field placeholder
+    public $customData                  = array();
 
     /***********************************/
 
@@ -276,5 +277,11 @@ class Field
     public function setOption($psName, $psValue)
     {
         $this->options[$psName] = $psValue;
+    }
+    
+    
+    public function addCustomData($pasArray)
+    {
+        $this->customData = array_merge($this->customData, $pasArray);
     }
 }

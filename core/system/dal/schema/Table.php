@@ -230,8 +230,8 @@ class Table
         }
         else 
         {
-            \P\lib\framework\helpers\JSManager::addInstructions('console.log("INFORMATION_SCHEMA n\'est pas configuré ! '.$psTable.'::'.$psField.'");');
-            \P\lib\framework\helpers\JSManager::addInstructions('console.log("COnfigurez manuellement les contraintes de clés étrangères dans Model::_customFields()");');
+//            \P\lib\framework\helpers\JSManager::addInstructions('console.log("INFORMATION_SCHEMA n\'est pas configuré ! '.$psTable.'::'.$psField.'");');
+//            \P\lib\framework\helpers\JSManager::addInstructions('console.log("COnfigurez manuellement les contraintes de clés étrangères dans Model::_customFields()");');
             return false;
         }
     }

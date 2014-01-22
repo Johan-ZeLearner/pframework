@@ -11,6 +11,8 @@ class FormBuilder
     {
         $sType = $poField->getType();
         
+//        utils\Debug::e($sType);
+        
         switch ($sType)
         {
             case 'int':
@@ -38,6 +40,8 @@ class FormBuilder
                     break;
 
             case 'tinyint':
+            case 'bool':
+            case 'boolean':
             case 'checkbox':
                     return new elements\Checkbox($poField);
                     break;

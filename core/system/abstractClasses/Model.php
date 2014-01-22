@@ -35,8 +35,14 @@ abstract class Model
 
         if (empty($this->_table)) return false; // throw new \ErrorException('You must specify a table name');
 
-        $sSchemeClassName 	= $this->dal->getSchemeClassName(get_called_class(), $this->_table);
-
+        if (is_object($this->dal))
+            $sSchemeClassName 	= $this->dal->getSchemeClassName(get_called_class(), $this->_table);
+        else 
+        {
+            throw new \ErrorException('Erreur, pas objet !!! ');
+            die();
+        }
+        
         $sConstantFile          = system\PathFinder::getConstDir(get_called_class()).$this->_table.'.php';
         $sInstructionsFile 	= system\PathFinder::getInstructionsDir(get_called_class()).$this->_table.'.php';
 
@@ -208,8 +214,6 @@ abstract class Model
                 }
                 elseif ($oField->$psFilter)
                 {
-                    
-                    
                     $asFields[] = $oField->label;
                 }
                 // else we ignore the field
@@ -311,9 +315,17 @@ abstract class Model
         */
     public function selectByPK($pnPK, $pbDebug=false, $pbRender=false)
     {
+        
+        if (is_object($pnPK))
+        {
+            utils\Debug::e(debug_backtrace());
+            die();
+        }   
         $oSelect = new dal\Select($this);
         $oSelect->andWhere($this->getPrimary().'='.$pnPK);
         $oSelect->render = $pbRender;
+        
+//        utils\Debug::e($oSelect->__toString());
         
         return $oSelect->fetchOne();
     }
@@ -554,7 +566,7 @@ abstract class Model
             utils\Debug::log($sQuery);
         }
         
-        $this->dal->query($sQuery) or die($sQuery.' <br /> '.utils\Debug::dump($this->dal->errorInfo()));
+        $this->dal->query($sQuery) or die($sQuery.' <br /> '. $this->dal->errorCode().' --  '.utils\Debug::dump($this->dal->errorInfo()));
 
         return $this->dal->lastInsertId();
     }
@@ -587,18 +599,19 @@ abstract class Model
             {
                 // foreign == forcement une cle numerique
                 
-                if ($this->_scheme->$sField->foreign)
+                if ($this->_scheme->$sField->foreign && $this->_scheme->$sField->inputType != 'text')
                 {
 //                    utils\Debug::e($this->_scheme->$sField);
                     $asQuery[] = '`'.$sField.'`'.' = '.$sValue;
+//                    die();
                 }
                 else
                     $asQuery[] = '`'.$sField.'`'.' = "'.  addslashes ($sValue).'"';
             }
-//            else
-//            {
-//                throw new \ErrorException('Le champ '.$sField.' est inconnu ! ');
-//            }
+            elseif ($pbDebug)
+            {
+                throw new \ErrorException('Le champ '.$sField.' est inconnu ! ');
+            }
         }
         
 //        utils\Debug::e($pasFields);
@@ -611,6 +624,7 @@ abstract class Model
 
         if ($pbDebug)
         {
+            utils\Debug::e($pasFields);
             utils\Debug::e($sQuery);
             //die();
         }
@@ -647,11 +661,11 @@ abstract class Model
         */
     public function query($psQuery)
     {
-        $oResults = $this->dal->query($psQuery) or die($psQuery.'<br />'.Dump($this->dal->errorInfo()));
+        $oResults = $this->dal->query($psQuery) or die($psQuery.'<br />'.utils\Debug::e($this->dal->errorInfo()));
 
         if (is_object($oResults))
         {
-            $oDbResponse = new system\dal\DbResponse($oResults->fetchAll(PDO::FETCH_OBJ), $this);
+            $oDbResponse = new system\dal\DbResponse($oResults->fetchAll(\PDO::FETCH_OBJ), $this);
 
             return $oDbResponse;
         }
@@ -688,8 +702,8 @@ abstract class Model
             throw new \ErrorException($psField.' n existe pas (valeur : '.$psValue.') - table '.$this->_table);
         }
 
-        if ($pbDebug)
-            utils\Debug::e('Type de '.$psField.' : '.$sType);
+//        if ($pbDebug)
+//            utils\Debug::e('Type de '.$psField.' : '.$sType);
         
         switch ($sType)
         {
@@ -860,4 +874,33 @@ abstract class Model
         return (bool) $this->count(array($this->getPrimary() => $id));
     }
     
+    
+    public function getFieldValue($psField, $poSelect, $default=false)
+    {
+        if ($poSelect instanceof dal\Select)
+        {
+//            $poSelect->resetFields();
+//            $poSelect->addField($psField);
+            $oRecord = $poSelect->fetchOne();
+        }
+        else
+            $oRecord = $poSelect;
+        
+        if (isset($oRecord->$psField))
+            return $oRecord->$psField;
+        
+        if ($poSelect instanceof dal\Select)
+            $sQuery = $poSelect->__toString();
+        else
+        {
+            $sQuery = '';
+            if (isset($poSelect->query))
+                $sQuery = $poSelect->query;
+        }
+        
+//        \P\lib\framework\helpers\Message::setMessage('Le champ '.$psField.' n\'existe pas dans la requete '.$sQuery);
+//        
+//        throw new \ErrorException();
+        return $default;
+    }
 }

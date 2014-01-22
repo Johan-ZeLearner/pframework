@@ -6,17 +6,22 @@ use P\lib\framework\core\system\traits as traits;
 
 class FormCustom extends \P\lib\framework\helpers\form\Form
 {
+    public $redirectUrl;
     public $model;
     public $saved = true;
+    public $data = array();
     
     public function __construct($poModel = '', $pbPopulate = true) {
         parent::__construct($poModel, $pbPopulate);
         
-        $this->populateFromRawData();
-        
         $this->getModel();
+        
+        if ($this->setData())
+            $this->_fill();
+        else
+            $this->populateFromRawData();
 
-        if (utils\Http::isPosted())
+        if (utils\Http::isPosted() && $this->isSent())
         {
             if($this->checkForm())
             {
@@ -25,15 +30,21 @@ class FormCustom extends \P\lib\framework\helpers\form\Form
             else
             {
                 $this->saveRawData();
-                utils\Http::redirect(\P\url());
+                utils\Http::redirect($this->getRedirectUrl()->setParam('form_error', 1));
             }
         }
         
         if (!$this->saved)
         {
             $this->saveRawData();
-            utils\Http::redirect(\P\url());
+            utils\Http::redirect($this->getRedirectUrl()->setParam('form_error', 1));
         }
+    }
+    
+    
+    public function isSent()
+    {
+        return true;
     }
     
     
@@ -61,7 +72,7 @@ class FormCustom extends \P\lib\framework\helpers\form\Form
 
         system\Session::set($sHash, $sData);
         
-        $sSession = system\Session::get($sHash);
+//        $sSession = system\Session::get($sHash);
     }
     
     
@@ -89,6 +100,29 @@ class FormCustom extends \P\lib\framework\helpers\form\Form
     }
     
     
+    public function setData()
+    {
+        return false;
+    }
+    
+    
+    protected function _fill()
+    {
+        foreach ($this->_fields as $oField)
+        {
+            if (isset($this->data[$oField->_field->getName()]))
+                $oField->setValue($this->data[$oField->_field->getName()]);
+        }
+    }
+    
+    
+    public function reFill()
+    {
+        $this->setData();
+        $this->_fill();
+    }
+    
+    
     public function saveForm()
     {
         throw new \ErrorException(__METHOD__.' must be implemented by '.__CLASS__);
@@ -98,5 +132,16 @@ class FormCustom extends \P\lib\framework\helpers\form\Form
     public function __get($name) 
     {
         return $this->getField($name);
+    }
+    
+    
+    public function getRedirectUrl()
+    {
+        if (empty($this->redirectUrl))
+            $this->redirectUrl = \P\url();
+        
+        $this->redirectUrl->removeParam('form_error');
+        
+        return $this->redirectUrl;
     }
 }

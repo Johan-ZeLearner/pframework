@@ -64,10 +64,19 @@ class Debug
                     echo $sOutput;	
 	}
         
+        
         static function e($psString)
 	{
             return self::dump($psString, '', false);
         }
+
+        
+        static function d($psString)
+        {
+            if (\P\apps\employee\Employee::isJohan())
+                return self::dump($psString, '', false);
+        }
+        
         
 	static function error($psString, $psTitle='')
 	{
@@ -78,14 +87,13 @@ class Debug
                     '.$psString.'
                 </div>';
             
-            
             return $sOutput;
 	}
         
         
         static function returnDump($psString, $psTitle='')
 	{
-            return self::dump($psString, $psTitle, true);
+            return self::dump($psString, $psTitle, false, true);
 	}
 	
 	

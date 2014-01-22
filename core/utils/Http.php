@@ -120,6 +120,7 @@ class Http
 	public static function forbidden()
 	{
             $oTheme = \P\lib\framework\themes\ThemeManager::load();
+            $oTheme->setSimple();
             
             return $oTheme->display('http_status/403.tpl.php');
 	}
@@ -133,6 +134,24 @@ class Http
             $oTheme = \P\lib\framework\themes\ThemeManager::load();
             
             return $oTheme->display('http_status/404.tpl.php');
+	}
+        
+	
+	/**
+	 * Displays a 403 error page
+	 */
+	public static function error501()
+	{
+            $oMail = new Mail();
+            $oMail->AddAddress(\P\lib\framework\core\system\Settings::getParam('bugTracking', 'email_to', 'johan@prosoud.com'));
+            $oMail->From = \P\lib\framework\core\system\Settings::getParam('bugTracking', 'email_from', 'johan@prosoud.com');
+            $oMail->FromName = '[Erreur 501] - '.\P\lib\framework\core\system\PathFinder::getBaseHref();
+            $oMail->Body = 'Une erreur est survenue à l\'URL '.  \P\url();
+            $oMail->Send();
+            
+            $oTheme = \P\lib\framework\themes\ThemeManager::load();
+            
+            return $oTheme->display('http_status/501.tpl.php');
 	}
         
         
@@ -213,6 +232,15 @@ class Http
             }
             
             return self::$_protocol;
+        }
+        
+        
+        public static function getReferer()
+        {
+            if ( !isset( $_SESSION["origURL"] ) )
+                $_SESSION["origURL"] = $_SERVER["HTTP_REFERER"];
+            
+            return $_SESSION["origURL"];
         }
         
 }

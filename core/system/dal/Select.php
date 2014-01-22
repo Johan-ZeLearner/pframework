@@ -27,7 +27,7 @@ class Select
 	
         public 	$dal;
 	
-        
+        public $response;
         
         const ENGINE_MYSQL_PDO                          = 'engine_mysql_pdo';
         const ENGINE_MYSQLI                             = 'engine_mysqli';
@@ -122,7 +122,8 @@ class Select
             if (!is_array($pasField)) throw new \ErrorException('$pasField must be an array');
             foreach ($pasField as $sField)
             {
-                $this->addField($sField);
+                if (!empty($sField))
+                    $this->addField($sField);
             }
 
             return $this;
@@ -182,6 +183,16 @@ class Select
             return $this;
 	}
 	
+        
+        public function remove($query)
+        {
+            foreach ($this->_asWhere as $key => $where)
+            {
+                if ( preg_match('/'.$query.'/i', $where['query']))
+                    unset ($this->_asWhere[$key]);
+            }
+        }
+        
 	
 	/**
 	 * Set the ordre by clause
@@ -333,6 +344,8 @@ class Select
 	
 	public function fetchOne()
 	{
+            $this->limit(0, 1);
+            $this->render = false;
             $oDbResponse = $this->fetchAll();
             
 //            if (key_exists('ps_carrier', $this->_asTables))
@@ -519,5 +532,35 @@ class Select
         public function render($pbRender=false)
         {
             $this->render = $pbRender;
+        }
+        
+        
+        public function resetFields()
+        {
+            $this->_asFields = array();
+        }
+        
+        
+        public function next()
+        {
+            $this->render = false;
+            return $this->readNext();
+        }
+        
+        public function readNext()
+        {
+            if (!is_object($this->response))
+                $this->response = $this->fetchAll();
+            
+            return $this->response->next();
+        }
+        
+        
+        public function toArray()
+        {
+            if (!is_object($this->response))
+                $this->response = $this->fetchAll();
+            
+            return $this->response->toArray();
         }
 }

@@ -2,6 +2,7 @@
 namespace P;
 use P\lib\framework\helpers as helpers;
 use P\lib\framework\core\utils as utils;
+use P\lib\framework\core\system as system;
 
 function tag($psTagName, $psContent, $pasArgs=array(), $pbSimple=false)
 {
@@ -38,4 +39,15 @@ function money($psString, $psDevise='&euro;')
 function emptyString($psString, $psReplace='')
 {
     return utils\String::emptyString($psString, $psReplace);
+}
+
+function themePath()
+{
+    return \P\lib\framework\themes\ThemeManager::getStaticPath();
+}
+
+
+function getSetting($section, $param, $default=0)
+{
+    return system\Settings::getParam($section, $param, $default);
 }

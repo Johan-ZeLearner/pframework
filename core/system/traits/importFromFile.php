@@ -11,7 +11,8 @@ trait importFromFile
     
     public function import()
     {
-        $this->theme->fieldName = strtolower(system\PathFinder::namespaceToTable(__CLASS__));
+        $this->theme->importfomfile_fieldName = strtolower(system\PathFinder::namespaceToTable(__CLASS__));
+        $this->theme->importfromfile_fieldName = strtolower(system\PathFinder::namespaceToTable(__CLASS__));
         
         $this->_importFromFile_customConfig();
         
@@ -27,27 +28,36 @@ trait importFromFile
                 $sSeparator = "\t";
             }
             
-            
             if (!$this->_importFromFile_checkConfig())
             {
-                $this->theme->message = helpers\Message::_message('error', 'erreur de check config');
+                $this->theme->importfomfile_message = helpers\Message::_message('error', 'erreur de check config');
             }
             else
             {
                 try 
                 {
-                    $sCsvFileName = $this->_getCsvContent( system\PathFinder::namespaceToTable(__CLASS__), $this->theme->fieldName);
+                    $sCsvFileName = $this->_getCsvContent( system\PathFinder::namespaceToTable(__CLASS__), $this->theme->importfomfile_fieldName);
                 }
                 catch(\Exception $e)
                 {
-                    $this->theme->message = helpers\Message::_message('error', $e->getMessage());
+                    helpers\Message::setMessage($e->getMessage(), MESSAGE_ERROR);
+                    $this->theme->importfomfile_message = helpers\Message::_message('error', $e->getMessage());
+                    utils\Http::redirect(\P\url());
                 }
                 
                 $i = 1;
                 if ($bSkipFirstLine)
                     $i = 0;
 
-                if (($handle = fopen($sCsvFileName, 'r')) === FALSE) return false;
+                if (empty($sCsvFileName))
+                {
+                    echo '$sCsvFileName est vide';
+                    return false;
+                }
+                if (($handle = fopen($sCsvFileName, 'r')) === FALSE)
+                {
+                    echo 'ouverture du fichier impossible'; return false;
+                }
 
                 while ($asLine = fgetcsv($handle, 4000, $sSeparator))
                 {
@@ -84,13 +94,16 @@ trait importFromFile
 
         if (isset($_FILES[$psFieldName]['tmp_name']) && !empty($_FILES[$psFieldName]['tmp_name']))
         {
-            move_uploaded_file($_FILES[$psFieldName]['tmp_name'], $sFilePath);
+            if (!move_uploaded_file($_FILES[$psFieldName]['tmp_name'], $sFilePath))
+            {
+                throw new \ErrorException('Aucun fichier uploadé - echec de moveuploadedfile');
+            }
+                    
         }
         elseif (!is_file($sFilePath))
         {
             throw new \ErrorException('Aucun fichier uploadé');
         }
-        
 
         return $sFilePath;
     }

@@ -20,7 +20,24 @@ class Date
     const frFR = 'frFR';
     const enUS = 'enUS';
     
-    public static function toDatabase($psValue, $psSeparator='/')
+    
+    public static function toDateDisplay($psValue)
+    {
+        return self::toDisplay($psValue, true);
+    }
+    
+    
+    public static function toDateDatabase($psValue)
+    {
+        $date = self::toDatabase($psValue, '/', true);
+        
+        $asDate = explode(' ', $date);
+        
+        return $asDate[0];
+    }
+    
+    
+    public static function toDatabase($psValue, $psSeparator='/', $pbSimple=false)
     {
         if ($psValue == '0000-00-00' || $psValue == '0000-00-00 00:00:00') return '';
         
@@ -35,7 +52,7 @@ class Date
             
             if (isset($asDate[1]) && $asDate[1] == 'à')
             {
-                if (isset($asDate[2]))
+                if (isset($asDate[2]) && !$pbSimple)
                 {
                     if(preg_match('/^([0-9]{2):([0-9]{2)/', $asDate[2], $asMatches))
                     {
@@ -43,20 +60,24 @@ class Date
                     }
                 }
             }
+            elseif (preg_match('/([0-9]{2}):([0-9]{2}):([0-9]{2})/', $asDate[1]) && !$pbSimple)
+            {
+                $sFinalDate .= ' '.$asDate[1];
+            }
         }
         elseif(preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})/', $psValue, $asMatches))
         {
             $sFinalDate = $psValue;
             
-            if (isset($asDate[1]))
+            if (isset($asDate[1]) && !$pbSimple)
             {
-                if(preg_match('/^([0-9]{2):([0-9]{2):([0-9]{2)/', $asDate[1], $asMatches))
+                if(preg_match('/^([0-9]{2):([0-9]{2):([0-9]{2)/', $asDate[1], $asMatches) && !$pbSimple)
                 {
                     $sFinalDate .= ' '.$asMatches[1].':'.$asMatches[2].':'.$asMatches[3];
                 }
             }
         }
-            
+        
         return $sFinalDate;
     }
     
@@ -141,9 +162,12 @@ class Date
      *
      * @return String
      */
-    public static function now()
+    public static function now($pbToDisplay=false)
     {
-    	return date('Y-m-d H:i:s');
+        if ($pbToDisplay)
+            return date('d/m/Y');
+        else
+            return date('Y-m-d H:i:s');
     }
     
     
@@ -207,5 +231,13 @@ class Date
     public static function secondToDay($pnSeconds)
     {
     	return (int) ($pnSeconds / (24 * 3600));
+    }
+    
+    
+    public static function stripSeparators($datetime)
+    {
+        $time = strtotime($datetime);
+        
+        return date('Ymd');
     }
 }
