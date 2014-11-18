@@ -24,87 +24,72 @@ class FormBuilder
             case 'varchar':
             case 'string':
                     return new elements\Text($poField);
-                    break;
 
             case 'text':
             case 'mediumtext':
                     return new elements\Textarea($poField);
-                    break;
 
             case 'hidden':
                     return new elements\Hidden($poField);
-                    break;
 
             case 'password':
                     return new elements\Password($poField);
-                    break;
 
             case 'tinyint':
             case 'bool':
             case 'boolean':
             case 'checkbox':
                     return new elements\Checkbox($poField);
-                    break;
 
             case 'select':
             case 'foreign':
                     if (isset($poField->options['multiple']) && $poField->options['multiple'])
-                            $oField = new  elements\SelectMultiple($poField);
+                        $oField = new  elements\SelectMultiple($poField);
                     else
-                            $oField = new elements\Select($poField);
+                        $oField = new elements\Select($poField);
 
                     return $oField;
-                    break;
 
             case 'tree':
                     $oField = new  elements\Tree($poField);
                     return $oField;
-                    break;
                 
             case 'autocomplete':
                     $oField =  new elements\Autocomplete($poField);
                     return $oField;
-                    break;
 
             case 'tag':
             case 'tags':
                     $oField =  new elements\Tags($poField);
                     return $oField;
-                    break;
 
             case 'html':
                     $oField = new elements\Html($poField);
                     return $oField;
-                    break;
 
             case 'color':
                     $oField = new elements\Color($poField);
                     return $oField;
-                    break;
 
             case 'date':
             case 'datetime':
                     return new elements\Date($poField);
-                    break;
 
             case 'time':
                     return new elements\Time($poField);
-                    break;
 
             case 'hour':
                     return new elements\Hour($poField);
-                    break;
 
             case 'ghost':
                     return new elements\Ghost($poField);
-                    break;
 
             case 'radio':
                     $oField = new elements\Radio($poField);
 
                     $poForm->_populateSelect($poField, $oField);
+                    
                     return $oField;
-                    break;
 
             default:
                 utils\Debug::dump($poField);

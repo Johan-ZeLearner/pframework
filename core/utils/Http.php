@@ -29,6 +29,12 @@ class Http
 	{
             self::$_custom[$psName] = $psValue;
         }
+        
+        
+        public static function isAjax()
+        {
+            return (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
+        }
 	
         
 	/**
@@ -83,8 +89,10 @@ class Http
 	public static function isPosted()
 	{
 	    if (isset($_POST) && !empty($_POST))
+            {
 	        return true;
-	        
+            }
+            
 	    return false;
 	}
 	
@@ -120,7 +128,6 @@ class Http
 	public static function forbidden()
 	{
             $oTheme = \P\lib\framework\themes\ThemeManager::load();
-            $oTheme->setSimple();
             
             return $oTheme->display('http_status/403.tpl.php');
 	}
@@ -129,10 +136,10 @@ class Http
 	/**
 	 * Displays a 404 error page
 	 */
-	public static function error404()
+	public static function error404($headers=true)
 	{
             $oTheme = \P\lib\framework\themes\ThemeManager::load();
-            
+            $oTheme->display_headers = $headers;
             return $oTheme->display('http_status/404.tpl.php');
 	}
         
@@ -140,16 +147,18 @@ class Http
 	/**
 	 * Displays a 403 error page
 	 */
-	public static function error501()
+	public static function error501($headers=true, $message='')
 	{
-            $oMail = new Mail();
-            $oMail->AddAddress(\P\lib\framework\core\system\Settings::getParam('bugTracking', 'email_to', 'johan@prosoud.com'));
-            $oMail->From = \P\lib\framework\core\system\Settings::getParam('bugTracking', 'email_from', 'johan@prosoud.com');
-            $oMail->FromName = '[Erreur 501] - '.\P\lib\framework\core\system\PathFinder::getBaseHref();
-            $oMail->Body = 'Une erreur est survenue à l\'URL '.  \P\url();
-            $oMail->Send();
-            
             $oTheme = \P\lib\framework\themes\ThemeManager::load();
+            $oTheme->display_headers = $headers;
+            $oTheme->message = $message;
+            
+//            $oMail = new Mail();
+//            $oMail->AddAddress(\P\lib\framework\core\system\Settings::getParam('bugTracking', 'email_to', 'johan@prosoud.com'));
+//            $oMail->From = \P\lib\framework\core\system\Settings::getParam('bugTracking', 'email_from', 'johan@prosoud.com');
+//            $oMail->FromName = '[Erreur 501] - '.\P\lib\framework\core\system\PathFinder::getBaseHref();
+//            $oMail->Body = 'Une erreur est survenue à l\'URL '.  \P\url();
+//            $oMail->Send();
             
             return $oTheme->display('http_status/501.tpl.php');
 	}

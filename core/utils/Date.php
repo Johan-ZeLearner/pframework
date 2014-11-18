@@ -37,85 +37,67 @@ class Date
     }
     
     
+    public static function toDisplayForm($date)
+    {
+        return date('d/m/Y H:i:s', self::strToTime($date));
+    }
+    
+    
+    public static function frToTime($date)
+    {
+        if (preg_match('/([0-9]{2}\/[0-9]{2}\/[0-9]{4})([0-9]{2}:[0-9]{2})?(:[0-9]{2})?/', $date, $asReq))
+        {
+            $asDate = explode('/', $asReq[1]);
+            
+            $sUsDate = $asDate[2].'-'.$asDate[1].'-'.$asDate[0];
+            
+            if (isset($asReq[2]))
+            {
+                $sUsDate .= $asReq[2];
+            }
+            
+            if (isset($asReq[3]))
+            {
+                $sUsDate .= $asReq[3];
+            }
+            elseif(isset($asReq[2]))
+            {
+                $sUsDate .= ':00';
+            }
+            
+            return strtotime($sUsDate);
+        }
+        
+        return 0;
+    }
+    
+    
+    public static function strToTime($date)
+    {
+        // format FR 
+        $time = self::frToTime($date);
+        
+        if ($time > 0)
+        {
+            return $time;
+        }
+
+        return strtotime($date);
+    }
+    
+    
     public static function toDatabase($psValue, $psSeparator='/', $pbSimple=false)
     {
-        if ($psValue == '0000-00-00' || $psValue == '0000-00-00 00:00:00') return '';
+        $time = self::strToTime($psValue);
         
-        if (empty($psValue)) return '0000-00-00 00:00:00';
-        
-        $asDate 	= explode(' ', $psValue);
-        $sFinalDate     = '0000-00-00 00:00:00';
-        
-        if (preg_match('/^([0-9]{2})\/([0-9]{2})\/([0-9]{4})/', $asDate[0], $asMatches))
+        if ($pbSimple)
         {
-            $sFinalDate = $asMatches[3].'-'.$asMatches[2].'-'.$asMatches[1];
-            
-            if (isset($asDate[1]) && $asDate[1] == 'à')
-            {
-                if (isset($asDate[2]) && !$pbSimple)
-                {
-                    if(preg_match('/^([0-9]{2):([0-9]{2)/', $asDate[2], $asMatches))
-                    {
-                        $sFinalDate .= ' '.$asMatches[1].':'.$asMatches[2].':00';
-                    }
-                }
-            }
-            elseif (preg_match('/([0-9]{2}):([0-9]{2}):([0-9]{2})/', $asDate[1]) && !$pbSimple)
-            {
-                $sFinalDate .= ' '.$asDate[1];
-            }
+            return date('Y-m-d', $time);
         }
-        elseif(preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})/', $psValue, $asMatches))
-        {
-            $sFinalDate = $psValue;
-            
-            if (isset($asDate[1]) && !$pbSimple)
-            {
-                if(preg_match('/^([0-9]{2):([0-9]{2):([0-9]{2)/', $asDate[1], $asMatches) && !$pbSimple)
-                {
-                    $sFinalDate .= ' '.$asMatches[1].':'.$asMatches[2].':'.$asMatches[3];
-                }
-            }
-        }
-        
-        return $sFinalDate;
-    }
-    
-    
-    public function format($psDateUs, $psOutput=self::frFR, $pbShort=true)
-    {
-        $nTime = strtotime($psDateUs);
-        
-        if ($nTime > 0)
-        {
-            switch ($psOutput)
-            {
-                case self::frFR:
-                    if ($pbShort)
-                        return date('d/m/Y');
-                    else
-                        return date('d/m/Y H:i:s');
-                    break;
                 
-                
-                case self::enUS:
-                    if ($pbShort)
-                        return date('Y-m-d');
-                    else
-                        return date('Y-m-d H:i:s');
-                    break;
-            }
-        }
+        return date('Y-m-d H:i:s', $time);
     }
-    
-    
-    public static function implode($psFragment01, $psFragment02, $psSeparator='/')
-    {
-        $psFragment01 = self::toDatabase($psFragment01, $psSeparator);
-        
-        return $psFragment01.' '.$psFragment02;
-    }
-    
+
     
     /**
      * Like toDatabase but it return a well formatted display date (see config.ini)
@@ -127,21 +109,18 @@ class Date
      */
     public static function toDisplay($psValue, $pbSimple=false)
     {
-        $sDate = self::toDatabase($psValue);
+        $time = self::strToTime($psValue);
         
-        if (empty($sDate))
-            return '';
-
         if ($pbSimple)
-            return date(System\Settings::getParam('format', 'date', 'd/m/Y'), strtotime($sDate));
+            return date(System\Settings::getParam('format', 'date', 'd/m/Y'), $time);
         else
-            return date(System\Settings::getParam('format', 'datetime', 'd/m/Y à H:i'), strtotime($sDate));
+            return date(System\Settings::getParam('format', 'datetime', 'd/m/Y à H:i'), $time);
     }
     
     
     /**
      * Similar to self::toDisplay() but returns
-     * the current date if $pdDate is empty
+     * the current date if $pdDate is truncate
      *
      * @param Date $pdDate
      * @param Boolean $pbSimple
@@ -180,19 +159,12 @@ class Date
      */
     public static function extractHour($psDate)
     {
-    	if (preg_match('/^([0-9]{2})\/([0-9]{2})\/([0-9]{4})/i', $psDate) || preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})/', $psDate))
-    	{
-    		$asDate = explode(' ',$psDate);
-    		
-    		if (isset($asDate[1])) return $asDate[1];
-    	}
-    
-    	return '';
+    	return date('H', self::strToTime($psDate));
     }
     
     
     /**
-     * Check wether the date $psDate is valid or empty
+     * Check wether the date $psDate is valid or truncate
      *
      * @param Date $psDate
      * @return Boolean
@@ -205,6 +177,8 @@ class Date
     		case '0000-00-00 00:00:00':
     		case '1970-01-01':
     		case '1970-01-01 00:00:00':
+    		case '1970-01-01 23:59:59':
+    		case '1970-01-01 01:00:00':
     		case '00/00/0000':
     		case '00/00/0000 00:00:00':
     		case '00/00/00':
@@ -213,11 +187,9 @@ class Date
     		case '01/01/1970 00:00:00':
     		case '':
     			return true;
-    			break;
     			
     		default:
     			return false;
-    			break;
     	}
     }
     
@@ -236,8 +208,26 @@ class Date
     
     public static function stripSeparators($datetime)
     {
-        $time = strtotime($datetime);
+        $time = self::strToTime($datetime);
         
-        return date('Ymd');
+        return date('Ymd', $time);
+    }
+    
+    
+    public static function valid($date)
+    {
+        // format FR 
+        if (preg_match('/([0-9]{2}\/[0-9]{2}\/[0-9]{4})( [0-9]{2}:[0-9]{2}:[0-9]{2})?/', $date))
+        {
+            return !self::isEmpty($date);
+        }
+        
+        // format us
+        if (preg_match('/([0-9]{4}-[0-9]{2}-[0-9]{2})( [0-9]{2}:[0-9]{2}:[0-9]{2})?/', $date))
+        {
+            return !self::isEmpty($date);
+        }
+        
+        return false;
     }
 }

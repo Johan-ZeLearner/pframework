@@ -17,6 +17,19 @@ class Select extends Element
     {
         $this->_options[$psValue] = $psLabel;
     }
+    
+    
+    public function setValue($data)
+    {
+        if (is_array($data))
+        {
+            $this->populateFromArray($data);
+        }
+        else
+        {
+            parent::setValue($data);
+        }
+    }
 
     
     public function populateFromArray($pasArray)
@@ -87,11 +100,17 @@ class Select extends Element
 //        Debug::e($this->_options);
         
         $this->theme->element = $this->_themeValues;
-        $sRender = $this->display('select.tpl.php');
+        $sRender = $this->display($this->getTemplate());
         
 //        Debug::e(htmlentities($sRender));
         
         return $sRender;
+    }
+
+
+    public function getTemplate()
+    {
+        return 'select.tpl.php';
     }
     
     

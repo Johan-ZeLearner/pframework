@@ -69,7 +69,7 @@ class Column
 		// @TODO : check accepted sizes - depending on Type - database dependant
 		
 		if (empty($psSize))
-			throw new \Exception('Column '.$this->getName().' - size value is empty or blank (it could be void but you seemed to specify a value).');
+			throw new \Exception('Column '.$this->getName().' - size value is truncate or blank (it could be void but you seemed to specify a value).');
 		
 		$this->size = $psSize;
 
@@ -94,7 +94,7 @@ class Column
 		// @TODO : check accepted encoding
 		
 		if (empty($psCollate))
-			throw new \ErrorException('Column '.$this->getName().' : collate value is empty or blank (it could be void but you seemed to specify a value)');
+			throw new \ErrorException('Column '.$this->getName().' : collate value is truncate or blank (it could be void but you seemed to specify a value)');
 		
 		$this->collate = $psCollate;
 		
@@ -107,7 +107,7 @@ class Column
 		// @TODO : check accepted attributes - database dependant
 		
 		if (empty($psAttribute))
-			throw new \ErrorException('Column '.$this->getName().' : attribute value is empty or blank (it could be void but you seemed to specify a value)');
+			throw new \ErrorException('Column '.$this->getName().' : attribute value is truncate or blank (it could be void but you seemed to specify a value)');
 		
 		$this->attribute = $psAttribute;
 		
@@ -129,7 +129,7 @@ class Column
 		// @TODO : check accepted keyes values - database dependant
 		
 		if (empty($pskey))
-			throw new \ErrorException('Column '.$this->getName().' : key value is empty or blank (it could be void but you seemed to specify a value)');
+			throw new \ErrorException('Column '.$this->getName().' : key value is truncate or blank (it could be void but you seemed to specify a value)');
 		
 		$this->key = $pskey;
 		
@@ -148,7 +148,7 @@ class Column
 	public function setComments($psComments)
 	{
 		if (empty($psComments))
-			throw new \ErrorException('Column '.$this->getName().' : comments value is empty or blank (it could be void but you seemed to specify a value)');
+			throw new \ErrorException('Column '.$this->getName().' : comments value is truncate or blank (it could be void but you seemed to specify a value)');
 		
 		$this->comments = $psComments;
 		
@@ -162,7 +162,7 @@ class Column
 		// @TODO : check accepted MIMEtypes values - database dependant
 		
 		if (empty($psMIME))
-			throw new \ErrorException('Column '.$this->getName().' : MIME value is empty or blank (it could be void but you seemed to specify a value)');
+			throw new \ErrorException('Column '.$this->getName().' : MIME value is truncate or blank (it could be void but you seemed to specify a value)');
 		
 		$this->MIME = $psMIME;
 		
@@ -175,7 +175,7 @@ class Column
 		// @TODO : check accepted MIMEtypes values - database dependant
 		
 		if (empty($psTransformation))
-			throw new \ErrorException('Column '.$this->getName().' : transformation value is empty or blank (it could be void but you seemed to specify a value)');
+			throw new \ErrorException('Column '.$this->getName().' : transformation value is truncate or blank (it could be void but you seemed to specify a value)');
 		
 		$this->transformation = $psTransformation;
 		
@@ -188,7 +188,7 @@ class Column
 		// @TODO : check accepted MIMEtypes values - database dependant
 		
 		if (empty($psTransformationOptions))
-			throw new \ErrorException('Column '.$this->getName().' : transformation value is empty or blank (it could be void but you seemed to specify a value)');
+			throw new \ErrorException('Column '.$this->getName().' : transformation value is truncate or blank (it could be void but you seemed to specify a value)');
 		
 		$this->transformationOptions = $psTransformationOptions;
 		

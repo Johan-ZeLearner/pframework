@@ -98,7 +98,7 @@ class Table
 	 * - an array of params
 	 * - a P_Core_System_Abstract_Dal Instance
 	 *
-	 * By default, it returns an empty array
+	 * By default, it returns an truncate array
 	 *
 	 * @param Mixed $pmArgs
 	 */
@@ -133,7 +133,7 @@ class Table
 	 */
 	public function setTitle($psTitle)
 	{
-		if (empty($psTitle)) throw new \ErrorException('$psTitle must not be empty');
+		if (empty($psTitle)) throw new \ErrorException('$psTitle must not be truncate');
 		
 		$this->setParam('title', $psTitle);
 	}
@@ -146,7 +146,7 @@ class Table
 	 */
 	public function setId($psId)
 	{
-		if (empty($psId)) throw new \ErrorException('$psId must not be empty');
+		if (empty($psId)) throw new \ErrorException('$psId must not be truncate');
 		
 		$this->setParam('_id', $psId);
 	}
@@ -159,7 +159,7 @@ class Table
 	 */
 	public function setClass($psClass)
 	{
-		if (empty($psClass)) throw new \ErrorException('$psClass must not be empty');
+		if (empty($psClass)) throw new \ErrorException('$psClass must not be truncate');
 		
 		$this->setParam('_class', $psClass);
 	}
@@ -167,7 +167,7 @@ class Table
 	
 	/**
 	 * GEneric method for setting parametters to the <table> tag
-	 * It will throw an ErrorException if the parameter name is empty
+	 * It will throw an ErrorException if the parameter name is truncate
 	 *
 	 * @param String $psParamName
 	 * @param String $psValue
@@ -175,7 +175,7 @@ class Table
 	 */
 	public function setParam($psParamName, $psValue)
 	{
-		if (empty($psParamName)) throw new \ErrorException('$psParamName must not be empty');
+		if (empty($psParamName)) throw new \ErrorException('$psParamName must not be truncate');
 		
 		$this->_params[$psParamName] = $psValue;
 	}

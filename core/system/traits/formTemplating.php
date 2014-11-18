@@ -22,17 +22,10 @@ trait formTemplating
     
     public function display($psFile)
     {
-        if ($this->theme->exists('forms/'.$psFile))
-        {
-//            \P\lib\framework\core\utils\Debug::e('forms/'.$psFile.' EXISTE');
-            return $this->theme->display('forms/'.$psFile);
-        }
-        else
-        {
-            
-//            die('existe pas : forms/'.$psFile);
-            
-        }
+        $file = \P\lib\framework\core\system\PathFinder::getRoot().'public/'.  \P\themePath().'forms/'.$psFile;
+        
+        if (is_file($file))
+             return $this->theme->display('forms/'.$psFile);
         
         return $this->theme->display(__DIR__.'/../../../helpers/form/template/'.$psFile, true);
     }

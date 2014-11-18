@@ -36,6 +36,11 @@ function money($psString, $psDevise='&euro;')
     return utils\Number::money($psString, $psDevise);
 }
 
+function moneyToTTC($psString, $psDevise='&euro;')
+{
+    return utils\Number::money($psString, $psDevise, true);
+}
+
 function emptyString($psString, $psReplace='')
 {
     return utils\String::emptyString($psString, $psReplace);
@@ -50,4 +55,10 @@ function themePath()
 function getSetting($section, $param, $default=0)
 {
     return system\Settings::getParam($section, $param, $default);
+}
+
+
+function esc($string)
+{
+    return \P\lib\framework\core\utils\String::escapeChar('"', $string);
 }

@@ -15,7 +15,7 @@
      *       notice, this list of conditions and the following disclaimer in the
      *       documentation and/or other materials provided with the distribution.
      *     * Neither the name of the <organization> nor the
-     *       names of its contributors may be used to endorse or promote products
+     *       names of its contributors may be used to endorse or promote product
      *       derived from this software without specific prior written permission.
      * 
      * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
@@ -149,7 +149,7 @@ namespace P\lib\framework\core\utils;
         }
 
         /*
-         * Check if it's empty, in case this file is loaded multiple times.
+         * Check if it's truncate, in case this file is loaded multiple times.
          */
         if ( ! isset($_php_error_global_handler) ) {
             $_php_error_global_handler = null;
@@ -322,7 +322,7 @@ namespace P\lib\framework\core\utils;
                     'T_ECHO'                        => 'echo',
                     'T_ELSE'                        => 'else',
                     'T_ELSEIF'                      => 'elseif',
-                    'T_EMPTY'                       => 'empty',
+                    'T_EMPTY'                       => 'truncate',
                     'T_ENCAPSED_AND_WHITESPACE'     => 'non-terminated string',
                     'T_ENDDECLARE'                  => 'enddeclare',
                     'T_ENDFOR'                      => 'endfor',
@@ -3627,7 +3627,7 @@ namespace P\lib\framework\core\utils;
                                 color: #ddd;
                                 list-style-type: none;
 
-                                /* needed for empty lines */
+                                /* needed for truncate lines */
                                 min-height: 20px;
                                 padding-right: 18px;
                                 padding-bottom: 1px;

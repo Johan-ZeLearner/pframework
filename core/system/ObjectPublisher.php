@@ -1,8 +1,10 @@
 <?php
 namespace P\lib\framework\core\system;
+use P\apps\employee\Employee;
 use P\lib\framework\helpers as helpers;
 use P\lib\framework\core\utils as utils;
 use P\lib\framework\core\system\interfaces as interfaces;
+use Whoops\Exception\ErrorException;
 
 /**
  *
@@ -50,29 +52,30 @@ class ObjectPublisher
 
         $oTheme = \P\lib\framework\themes\ThemeManager::load();
         $oTheme->controller     = self::$_controller;
+        $oTheme->master         = self::$_controller;
         $oTheme->action         = self::$_action;
+        
 
         // on vérifie si le composant est "callable"
         if (!self::$_controller instanceof interfaces\isCallable)
         {
             helpers\Message::setMessage($sControllerFullName.' n\'est pas callable', MESSAGE_ERROR);
             self::$_output = utils\Http::error404();
-            
+
+            utils\Debug::e(self::$_controller);
+
+            throw new \ErrorException($sControllerFullName.' pas callable');
             die("$sControllerFullName pas callable");
         }
+        
         $sAction = self::$_action; // syntax error with direct call of self::$_action
 
         if (empty(self::$_output))
-            self::$_output = self::$_controller->$sAction();
-
-
-        // on check si on est en ajax
-        if (\P\lib\framework\themes\ThemeManager::$is_ajax)
         {
-            echo self::$_output;
-            die();
+            self::$_output = self::$_controller->$sAction();
         }
-
+        
+        
         // We check if a theme is used
         if (\P\lib\framework\themes\ThemeManager::haveTheme(self::$_controller->getName()))
         {
@@ -80,12 +83,12 @@ class ObjectPublisher
             \P\lib\framework\themes\ThemeManager::setHookContent('content', self::$_output);
 
             // loading the layout
-            echo \P\lib\framework\themes\ThemeManager::displayLayout();
+            return \P\lib\framework\themes\ThemeManager::displayLayout();
         }
         else
         {
             // we display raw data from the controller
-            echo self::$_output;
+            return trim(self::$_output);
         }
 
         // End of program - will be on air tomorrow at 7:00 am

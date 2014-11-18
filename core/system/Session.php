@@ -48,6 +48,11 @@ class Session
         
         public static function setCookie($psName, $psValue, $pnTTL)
         {
+            if (is_array($psValue))
+            {
+                return false;
+            }
+            
             setcookie($psName, $psValue, time() + $pnTTL, '/'); 
         }
         

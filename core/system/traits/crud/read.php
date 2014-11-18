@@ -81,7 +81,7 @@ trait read
         $asActions[0]['link']   = \P\url('', 'create');
         $asActions[0]['label']   = 'Ajouter';
         $asActions[0]['css']    = 'btn-success';
-        $asActions[0]['icon']   = 'icon-plus-sign icon-white';
+        $asActions[0]['icon']   = 'fa fa-plus-circle';
 
         return $asActions;
         

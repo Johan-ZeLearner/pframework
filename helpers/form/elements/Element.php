@@ -44,9 +44,10 @@ abstract class Element
     {
         if ($this instanceof Hidden) return $this->getField();
         
+        $sLabel =  $this->_label;
         if ($this->required)
         {
-            $this->_label = \P\tag('strong', $this->_label.' *');
+            $sLabel = \P\tag('strong', $this->_label.' *');
             $this->_params['required'] = '';
         }
         
@@ -56,19 +57,14 @@ abstract class Element
         $oField = $this->getField();
 
         // Template
-        $this->addThemeVar('label', $this->_label);
+        $this->addThemeVar('label', $sLabel);
         $this->addThemeVar('error', $this->_getErrorMessage());
         $this->addThemeVar('description', $this->_getDescription());
-        $this->addThemeVar('customData', $this->_getCustomData());
-        
         
         if (is_object($oField))
             $this->addThemeVar('field', $oField->__toString());
         else
             $this->addThemeVar('field', $oField);
-        
-        if ($this->simple)
-            return $oField;
         
         $this->theme->element = $this->_themeValues;
         
@@ -78,7 +74,7 @@ abstract class Element
 
     public function setName($psName)
     {
-        if (empty($psName)) throw new \ErrorException('Name must not be empty');
+        if (empty($psName)) throw new \ErrorException('Name must not be truncate');
 
         $this->setParam('name', $psName);
     }
@@ -94,7 +90,7 @@ abstract class Element
 
     public function setId($psId)
     {
-        if (empty($psId)) throw new \ErrorException('Id must not be empty');
+        if (empty($psId)) throw new \ErrorException('Id must not be truncate');
 
         $this->setParam('id', $psId);
     }
@@ -109,7 +105,7 @@ abstract class Element
 
     public function setParam($psName, $psValue)
     {
-        if (empty($psName))  throw new \ErrorException('Name must not be empty');
+        if (empty($psName))  throw new \ErrorException('Name must not be truncate');
 
         $this->_params[$psName] = $psValue;
     }
@@ -117,7 +113,7 @@ abstract class Element
 
     public function addClass($psClass)
     {
-        if (empty($psClass)) throw new \ErrorException('$psClass must not be empty');
+        if (empty($psClass)) throw new \ErrorException('$psClass must not be truncate');
         
         $this->_buildClassArray();
 
@@ -128,7 +124,7 @@ abstract class Element
 
     public function removeClass($psClass)
     {
-        if (empty($psClass)) throw new \ErrorException('$psClass must not be empty');
+        if (empty($psClass)) throw new \ErrorException('$psClass must not be truncate');
 
         $this->_buildClassArray();
 
@@ -193,11 +189,6 @@ abstract class Element
     protected function _getDescription()
     {
         return '<p class="help-block">'.$this->_field->description.'</p>'."\n";
-    }
-
-    protected function _getCustomData()
-    {
-        return $this->_field->customData;
     }
     
     protected function _getPlaceHolder()

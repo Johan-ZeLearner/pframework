@@ -9,6 +9,7 @@ namespace P\lib\framework\core\utils;
 class Debug
 {
         static $log;
+        
     
 	/**
 	 * Enhanced version of the built in php function print_r
@@ -36,38 +37,31 @@ class Debug
 	}
 	
 	
-	static function dump($psString, $psTitle='', $pbTemplate=true, $pbReturn=false)
+	static function dump($psString, $psTitle='', $pbTemplate=false, $pbReturn=false)
 	{
-		$sOutput = '';
-                
-                $oTheme = \P\lib\framework\themes\ThemeManager::load();
-		
-		ob_start();
-		echo '<strong>'.$psTitle.'</strong><br />';
-		echo '<pre>';
-		// Output buffering befor var_dump call
-		print_r($psString);
-		echo '</pre>';
-		echo '<br />';
-		
-		$sOutput = ob_get_contents();
-		ob_end_clean();
+            $oTheme = \P\lib\framework\themes\ThemeManager::load();
+            $oTheme->debug_temp          = array(
+                'title'     => $psTitle,
+                'content'   => $psString,
+            );
+            
+            $sOutput = $oTheme->display('layout/debug.tpl.php');
 
-                
-		if ($pbReturn)
-                    return $sOutput;
-                elseif ($pbTemplate) 
-                {
-			$oTheme->debugMessage($sOutput);
-                }    
-                else
-                    echo $sOutput;	
+            if ($pbReturn)
+                return $sOutput;
+            
+            elseif ($pbTemplate) 
+            {
+                    $oTheme->debugMessage($sOutput);
+            }    
+            else
+                echo $sOutput;	
 	}
         
         
-        static function e($psString)
+        static function e($psString, $title='')
 	{
-            return self::dump($psString, '', false);
+            return self::dump($psString, $title, false);
         }
 
         
@@ -130,7 +124,7 @@ class Debug
 
                 file_put_contents($sTempFolder.'debug_log.txt', $psMessage."\n", FILE_APPEND);
 
-                if ($pbDisplay) self::dump ($psMessage);
+                if ($pbDisplay) { self::dump ($psMessage); }
             }
         }
         

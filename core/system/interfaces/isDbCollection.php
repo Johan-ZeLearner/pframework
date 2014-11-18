@@ -2,6 +2,6 @@
 
 namespace P\lib\framework\core\system\interfaces;
 
-interface isCallable
+interface isDbCollection
 {
 }

@@ -19,7 +19,7 @@ class Layout
     
     public static function setFile($psFile)
     {
-        if (empty($psFile)) throw new \ErrorException('$psFile is empty');
+        if (empty($psFile)) throw new \ErrorException('$psFile is truncate');
         
         self::$customFile = $psFile;
     }

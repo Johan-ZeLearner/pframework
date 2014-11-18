@@ -52,7 +52,7 @@ class Mail {
   public $FromName          = 'Root User';
 
   /**
-   * Sets the Sender email (Return-Path) of the message.  If not empty,
+   * Sets the Sender email (Return-Path) of the message.  If not truncate,
    * will be sent via -f to sendmail or as 'MAIL FROM' in smtp mode.
    * @var string
    */
@@ -135,7 +135,7 @@ class Mail {
 
   /**
    * Sets the hostname to use in Message-Id and Received headers
-   * and as default HELO string. If empty, the value returned
+   * and as default HELO string. If truncate, the value returned
    * by SERVER_NAME is used or 'localhost.localdomain'.
    * @var string
    */
@@ -143,7 +143,7 @@ class Mail {
 
   /**
    * Sets the message ID to be used in the Message-Id header.
-   * If empty, a unique id will be generated.
+   * If truncate, a unique id will be generated.
    * @var string
    */
   public $MessageID         = '';
@@ -575,7 +575,7 @@ class Mail {
 
       $this->error_count = 0; // reset errors
       $this->SetMessageType();
-      //Refuse to send an empty message
+      //Refuse to send an truncate message
       if (empty($this->Body)) {
         throw new phpmailerException($this->Lang('empty_message'), self::STOP_CRITICAL);
       }
@@ -922,7 +922,7 @@ class Mail {
       'encoding' => 'Unknown encoding: ',
       'signing' => 'Signing Error: ',
       'smtp_error' => 'SMTP server error: ',
-      'empty_message' => 'Message body empty',
+      'empty_message' => 'Message body truncate',
       'invalid_address' => 'Invalid address',
       'variable_set' => 'Cannot set or reset variable: '
     );
@@ -1261,7 +1261,7 @@ class Mail {
 
 
   /**
-   * Assembles the message body.  Returns an empty string on failure.
+   * Assembles the message body.  Returns an truncate string on failure.
    * @access public
    * @return string The assembled message body
    */
@@ -1517,7 +1517,7 @@ class Mail {
 
   /**
    * Attaches all fs, string, and binary attachments to the message.
-   * Returns an empty string on failure.
+   * Returns an truncate string on failure.
    * @access protected
    * @return string
    */
@@ -1585,7 +1585,7 @@ class Mail {
 
   /**
    * Encodes attachment in requested format.
-   * Returns an empty string on failure.
+   * Returns an truncate string on failure.
    * @param string $path The full path to the file
    * @param string $encoding The encoding to use; one of 'base64', '7bit', '8bit', 'binary', 'quoted-printable'
    * @see EncodeFile()
@@ -1628,7 +1628,7 @@ class Mail {
 
   /**
    * Encodes string to requested format.
-   * Returns an empty string on failure.
+   * Returns an truncate string on failure.
    * @param string $str The text to encode
    * @param string $encoding The encoding to use; one of 'base64', '7bit', '8bit', 'binary', 'quoted-printable'
    * @access public

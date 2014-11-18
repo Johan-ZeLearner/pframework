@@ -55,7 +55,6 @@ abstract class Model
                 system\dal\SchemeCreator::createDbScheme($sSchemeClassName, $this->_table, $this);
                 $this->_bGenerated = true;
         }
-
         try
         {
             // On essaye de charger le schema de la table
@@ -172,7 +171,7 @@ abstract class Model
         {
             return $this->_scheme->$psName;
         }
-        
+
         throw new \ErrorException('The field '.$psName.' doesn\'t exists in this scheme');
     }
     
@@ -365,7 +364,7 @@ abstract class Model
                 die();
             }
 
-        return $oSelect->fetchAll();
+        return $oSelect;
     }
     
     
@@ -531,44 +530,20 @@ abstract class Model
         */
     public function insert($pasFields, $pbDebug = false)
     {
-        $sQuery  = '';
-        $sQuery .= ' INSERT INTO '.$this->_table;
-        $sQuery .= ' SET ';
-
-        // on gère la date automatique
-        $sCreate = $this->_table.'_date_create';
-        $sUpdate = $this->_table.'_date_update';
-
-        if (isset($this->_scheme->$sCreate) && !isset($pasFields[$sCreate]))
-        {
-            $pasFields[$sCreate] = date('Y-m-d H:i:s');
-        }
-
-        if (isset($this->_scheme->$sUpdate) && !isset($pasFields[$sUpdate]))
-        {
-            $pasFields[$sUpdate] = date('Y-m-d H:i:s');
-        }
-
-        $asQuery = array();
-        foreach ($pasFields as $sField => $sValue)
-        {
-            if (isset($this->_scheme->$sField))
-            {
-                $asQuery[] = $this->_renderValue($sField, $sValue, $pbDebug);
-            }
-        }
-
-        $sQuery .= implode(', ', $asQuery);
-
-        if ($pbDebug)
-        {
-            utils\Debug::e($sQuery);
-            utils\Debug::log($sQuery);
-        }
+        if (!is_array($pasFields)) { return false; }
         
-        $this->dal->query($sQuery) or die($sQuery.' <br /> '. $this->dal->errorCode().' --  '.utils\Debug::dump($this->dal->errorInfo()));
+        $pasFields  = $this->_handleDateUpdate($pasFields);
+        $pasFields  = $this->_handleDateCreate($pasFields);
+        
+        $oWrite = new dal\Write($this);
 
-        return $this->dal->lastInsertId();
+        $this->_formatQuery($oWrite, $pasFields, $pbDebug);
+        $this->_handleDebug($oWrite, $pbDebug);
+
+        // on execute
+        $oWrite->query(); // or die('ERREUR : '.$oWrite->__toString().' <br /> '.  utils\Debug::dump($oWrite->errorInfo()));
+        
+        return $oWrite->lastInsertId();
     }
 
 
@@ -580,33 +555,92 @@ abstract class Model
      */
     public function update($pasFields, $pnPK, $pbDebug=false)
     {
-        $sQuery  = '';
-        $sQuery .= ' UPDATE '.$this->_table;
-        $sQuery .= ' SET ';
+        $pasFields  = $this->_handleDateUpdate($pasFields);
+        
+        $oWrite = new dal\Write($this);
+        $oWrite->andWhere($this->getPrimary().' = '.(int) $pnPK);
+        
+        $this->_formatQuery($oWrite, $pasFields, $pbDebug);
+        $this->_handleDebug($oWrite, $pbDebug);
 
-        // on gère la date automatique
-        $sUpdate = $this->_table.'_date_update';
+        // on execute
+        $oWrite->query(false) or die($oWrite->__toString().' <br /> '.  utils\Debug::dump($this->dal->errorInfo()));
 
-        if (isset($this->_scheme->$sUpdate) && !isset($pasFields[$sUpdate]))
+        return (int) $pnPK;
+    }
+    
+    
+    protected function _handleDebug($oWrite, $pbDebug)
+    {
+        if ($pbDebug)
         {
-            $pasFields[$sUpdate] = date('Y-m-d H:i:s');
+            utils\Debug::e($oWrite->__toString());
+//            die();
         }
+    }
+    
+    
+    
+    protected function _handleDateUpdate($pasFields, $custom='')
+    {
+        $asUpdate = array(
+            $this->_table.'_date_update',
+            'date_update',
+            $custom
+        );
+        
+//        utils\Debug::e($pasFields);
+        
+        foreach ($asUpdate as $field)
+        {
+           if (!empty($field) && isset($this->_scheme->$field))
+            {
+               $key = (string) $field;
+               
+               $pasFields = array_merge($pasFields, array($field => date('Y-m-d H:i:s')));
+            }
+        }
+        
+        return $pasFields;
+    }
+    
+    
+    protected function _handleDateCreate($pasFields, $custom='')
+    {
+        // on gère la date automatique
+        $asCreate = array(
+            $this->_table.'_date_create',
+            'date_create',
+            $custom
+        );
 
-        $asQuery = array();
+        
+        foreach ($asCreate as $field)
+        {
+            if (isset($this->_scheme->$field))
+            {
+                $pasFields[$field] = date('Y-m-d H:i:s');
+            }
+        }
+        
+        return $pasFields;
+    }
+
+    
+    protected function _formatQuery($oWrite, $pasFields, $pbDebug)
+    {
         foreach ($pasFields as $sField => $sValue)
         {
             if (isset($this->_scheme->$sField))
             {
-                // foreign == forcement une cle numerique
-                
                 if ($this->_scheme->$sField->foreign && $this->_scheme->$sField->inputType != 'text')
                 {
-//                    utils\Debug::e($this->_scheme->$sField);
-                    $asQuery[] = '`'.$sField.'`'.' = '.$sValue;
-//                    die();
+                    $oWrite->addSet('`'.$sField.'`'.' = '.$sValue);
                 }
                 else
-                    $asQuery[] = '`'.$sField.'`'.' = "'.  addslashes ($sValue).'"';
+                {
+                    $oWrite->addSet('`'.$sField.'`'.' = "'.  addslashes ($sValue).'"');
+                }
             }
             elseif ($pbDebug)
             {
@@ -614,26 +648,8 @@ abstract class Model
             }
         }
         
-//        utils\Debug::e($pasFields);
-//        utils\Debug::e($asQuery);
-        
-
-        $sQuery .= implode(', ', $asQuery);
-
-        $sQuery .= ' WHERE '.$this->getPrimary().' = '.(int) $pnPK;
-
-        if ($pbDebug)
-        {
-            utils\Debug::e($pasFields);
-            utils\Debug::e($sQuery);
-            //die();
-        }
-
-        $this->dal->query($sQuery) or die($sQuery.' <br /> '.  utils\Debug::dump($this->dal->errorInfo()));;
-
-        return (int) $pnPK;
+        return $oWrite;
     }
-
 
     /**
         * Generic method for deleting a row by its Primary Key value
@@ -647,14 +663,14 @@ abstract class Model
         if ($pbDebug)
         {
             utils\Debug::dump($sQuery);
-            die();
+//            die();
         }
 
         $this->dal->query($sQuery) or die($sQuery.'<br />'.utils\Debug::dump(mysql_error()));
 
         return !(bool) $this->count(array($this->getPrimary() => $pnPK));
     }
-    
+
 
     /**
         * Performs the query and return the generic oDbResponse Object needed by the Dal
@@ -672,6 +688,7 @@ abstract class Model
     }
 
 
+    
     /**
         *  Reset the values of the scheme loaded in
         */
@@ -831,23 +848,23 @@ abstract class Model
     }
     
     
-     public function toArray($aoResults, $psFieldName='')
+    public function toArray($aoResults, $psFieldName='')
     {
         if (!is_object($aoResults))
         {
             return array();
         }
-        
+
+
         $aoResults->reset();
-        
+
         $anId = array();
         
-        while($oRecord = $aoResults->readNext(RESPONSE_RAW))
+        while($oRecord = $aoResults->next())
         {
             $sPrimary = $this->getPrimary();
 
-//            utils\Debug::e($oRecord->$sPrimary);
-            
+
             if (!empty($psFieldName))
             {
                 $anId[] = $oRecord->$psFieldName;
@@ -889,6 +906,8 @@ abstract class Model
         if (isset($oRecord->$psField))
             return $oRecord->$psField;
         
+        return $default;
+        
         if ($poSelect instanceof dal\Select)
             $sQuery = $poSelect->__toString();
         else
@@ -902,5 +921,54 @@ abstract class Model
 //        
 //        throw new \ErrorException();
         return $default;
+    }
+    
+    
+    public function toInList($field, $oSelect, $type='integer')
+    {
+        $anKeys = array();
+        while($oRecord = $oSelect->next())
+        {
+            if (isset($oRecord->$field) && !empty($oRecord->$field))
+            {
+            
+                if ($type == 'integer')
+                {
+                    $anKeys[] = $oRecord->$field;
+                }
+                else
+                {
+                    $anKeys[] = utils\String::surround($oRecord->$field, '"');
+                }
+            }
+        }
+        
+        return implode(',', $anKeys);
+    }
+    
+    
+    public function all($fields=array('*'))
+    {
+        if (!is_array($fields)) { $fields = array('*'); }
+        
+        $oSelect = new dal\Select($this);
+        $oSelect->addFields($fields);
+        
+        return $oSelect;
+    }
+
+
+    public function isDeleted($key)
+    {
+        return !($this->countByPK($key) > 0);
+    }
+
+
+    public function selectItem($field, $key, $default='')
+    {
+        $oSelect = new dal\Select($this);
+        $oSelect->andWhere($this->getPrimary().' = '.$key);
+
+        return $this->getFieldValue($field, $oSelect, $default);
     }
 }

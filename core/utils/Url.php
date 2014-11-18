@@ -21,14 +21,13 @@ class Url
 	private $_simple 	= false;
 	static $_simpleOn	= false;
 	static $_short		= false;
-        public $render          = true;
-        public $displayHost     = true;
+        public $render           = true;
 
 
         /**
 	 * The constructor build the Url from the 3 main args.
 	 * If nothing is specified, the url built is the current Url
-	 * If false is specified as arg1, the Url Object will be empty
+	 * If false is specified as arg1, the Url Object will be truncate
 	 *
 	 * @param Mixed $psArg01
 	 * @param Mixed $psArg02
@@ -140,7 +139,7 @@ class Url
 	public function setParam($psParam, $psValue)
 	{
 		if (empty($psParam))
-			trigger_error('psParam must not be empty', E_USER_ERROR);
+			trigger_error('psParam must not be truncate', E_USER_ERROR);
 			
 		$this->_asParams[$psParam] = $psValue;
 		
@@ -241,11 +240,6 @@ class Url
                 if (count($this->_asParams) > 0 && $sUrl{(strlen($sUrl) - 1)} == '&')
                     $sUrl = substr ($sUrl, 0, -1);
             }
-            
-            if (!$this->displayHost)
-            {
-                $sUrl = str_replace(system\PathFinder::getBaseHref(), '', $sUrl);
-            }
 
 
             return $sUrl;
@@ -330,12 +324,5 @@ class Url
 		
 		self::$_short = false;
 	}
-        
-        
-        public function noHost()
-        {
-            $this->displayHost = false;
-            return $this;
-        }
 	
 }

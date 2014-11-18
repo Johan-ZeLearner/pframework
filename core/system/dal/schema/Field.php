@@ -57,7 +57,7 @@ class Field
         */
     public function setName($psName)
     {
-            if (empty($psName)) throw new \Exception('$psName must not be empty', E_USER_WARNING);
+            if (empty($psName)) throw new \Exception('$psName must not be truncate', E_USER_WARNING);
 
             $this->_sField = $psName;
     }
@@ -72,7 +72,7 @@ class Field
         */
     public function setSqlType($psType)
     {
-            if (empty($psType)) throw new \Exception('$psType must not be empty', E_USER_WARNING);
+            if (empty($psType)) throw new \Exception('$psType must not be truncate', E_USER_WARNING);
 
             if ((bool)preg_match('/([a-zA-Z]+)\(([0-9]+)\)/i', $psType, $asMatches))
             {
@@ -88,7 +88,7 @@ class Field
     
     public function setType($psType)
     {
-        if (empty($psType)) throw new \Exception('$psType must not be empty', E_USER_WARNING);
+        if (empty($psType)) throw new \Exception('$psType must not be truncate', E_USER_WARNING);
 
         $this->_sType = $psType;
     }
@@ -144,7 +144,7 @@ class Field
     */
     public function setInputType($psString)
     {
-        if (empty($psString)) throw new \Exception('$psString must not be empty', E_USER_WARNING);
+        if (empty($psString)) throw new \Exception('$psString must not be truncate', E_USER_WARNING);
 
         $this->inputType = $psString;
     }

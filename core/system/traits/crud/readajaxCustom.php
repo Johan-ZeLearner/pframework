@@ -17,6 +17,7 @@ trait readajaxCustom
         $this->theme->title          = $this->_getTitle('index');
         $this->theme->actions        = $this->_getActions();
         $this->theme->controller     = $this;
+        $this->theme->master         = $this;
         
         return $this->theme->display($this->getReadAjaxTemplate());
     }

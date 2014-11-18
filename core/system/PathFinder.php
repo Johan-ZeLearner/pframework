@@ -11,7 +11,7 @@ class PathFinder
 	{
 		if (empty($psClassName)) 
 		{
-                    throw new \ErrorException('Parameter $psClassName is empty');
+                    throw new \ErrorException('Parameter $psClassName is truncate');
 		}
 		
 		$asPath = explode('\\', $psClassName);
@@ -303,4 +303,12 @@ class PathFinder
             
             return $sNamespace;
         }
+
+
+    public static function getControllerNamespace($controllerFullPath)
+    {
+        $parts = explode('\\', $controllerFullPath);
+
+        return str_replace('\\'.$parts[count($parts) - 1], '', $controllerFullPath);
+    }
 }

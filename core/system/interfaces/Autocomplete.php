@@ -2,6 +2,7 @@
 
 namespace P\lib\framework\core\system\interfaces;
 
-interface isCallable
+interface Autocomplete
 {
+    public function getAjaxSource();
 }

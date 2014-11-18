@@ -69,11 +69,14 @@ class Settings
             if (!isset($_SESSION['login']))
             {
                 if (isset($_SESSION['HOST_URL']))
-                    unset($_SESSION['HOST_URL']);	// empty the HOST_URL cache
+                    unset($_SESSION['HOST_URL']);	// truncate the HOST_URL cache
             }
 
+            
             if (isset($_SESSION['HOST_URL']))
+            {
                 $sHost = $_SESSION['HOST_URL'];
+            }
             else
             {
                 $sHttp = self::getCompleteURL();
@@ -83,18 +86,17 @@ class Settings
             }
 	}
 	
-
+        
 	/**
 	 * Compile the current URL for rewritting purposes
 	 */
 	public static function getCompleteURL()
 	{
-		$sHost 			= $_SERVER['HTTP_HOST'];
-		$sScriptName 	= $_SERVER['SCRIPT_NAME'];
-	
-		$sScriptName 	= str_replace(array('/index.php', '/server.php'), '', $sScriptName);
-	
-		return 'http://'.$sHost.$sScriptName.'/';
-	}
+            $sHost 			= $_SERVER['HTTP_HOST'];
+            $sScriptName 	= $_SERVER['SCRIPT_NAME'];
 
+            $sScriptName 	= str_replace(array('/index.php', '/server.php'), '', $sScriptName);
+
+            return 'http://'.$sHost.$sScriptName.'/';
+	}
 }

@@ -8,6 +8,7 @@ trait importFromFile
 {
     protected $config = array();
     protected $_importFromFile_debug;
+    public $count = 0;
     
     public function import()
     {
@@ -63,6 +64,7 @@ trait importFromFile
                 {
                     if ($i > 0)// && $i <= 1)
                     {
+                        $this->count++;
                         $bOk = $this->_importFromFile_processData($asLine, $i);
                     
                         if (!$bOk)
@@ -98,7 +100,18 @@ trait importFromFile
             {
                 throw new \ErrorException('Aucun fichier uploadé - echec de moveuploadedfile');
             }
-                    
+
+            $file = file_get_contents($sFilePath);
+            $file = iconv(mb_detect_encoding($file, mb_detect_order(), true), "UTF-8", $file);
+
+            if ($file)
+            {
+                file_put_contents($sFilePath, $file);
+            }
+            else
+            {
+                die('LINE::'.__LINE__.' File not converted');
+            }
         }
         elseif (!is_file($sFilePath))
         {

@@ -23,7 +23,7 @@ class Treeview
 	
 	public function setParam($psParam, $psValue)
 	{
-            if (empty($psParam)) throw new \ErrorException('psParam must not be empty');
+            if (empty($psParam)) throw new \ErrorException('psParam must not be truncate');
 
             $this->_asParam[$psParam] = $psValue;
 	}

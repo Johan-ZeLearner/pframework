@@ -1,33 +1,36 @@
 <?php
+require 'PathFinder.php';
 
 function __autoload($psClassName)
 {
 //    echo 'chargement de '.$psClassName.'<br />';
     
     // exception override Object
-    if ($psClassName == 'P\override\Object')
+//    if ($psClassName == 'P\override\Object')
+//    {
+//        $sPath = \P\lib\framework\core\system\PathFinder::classToPath($psClassName);
+//        if (!is_file($sPath))
+//        {
+//            $psClassName = 'P\lib\framework\core\system\abstractClasses\Object';
+//        }
+//    }
+//    elseif ($psClassName == 'P\override\Controller')
+//    {
+//        $sPath = \P\lib\framework\core\system\PathFinder::classToPath($psClassName);
+//        if (!is_file($sPath))
+//        {
+//            $psClassName = 'P\lib\framework\core\system\abstractClasses\Controller';
+//        }
+//    }
+
+    if (preg_match('/^whoops/i', $psClassName))
     {
-        $sPath = \P\lib\framework\core\system\PathFinder::classToPath($psClassName);
-        if (!is_file($sPath))
-        {
-            $psClassName = 'P\lib\framework\core\system\abstractClasses\Object';
-        }
-    }
-    elseif ($psClassName == 'P\override\Controller')
-    {
-        $sPath = \P\lib\framework\core\system\PathFinder::classToPath($psClassName);
-        if (!is_file($sPath))
-        {
-            $psClassName = 'P\lib\framework\core\system\abstractClasses\Controller';
-        }
+        $psClassName = 'P\lib\extra\\'.$psClassName;
     }
     
     try
     {
         $sPath = \P\lib\framework\core\system\PathFinder::classToPath($psClassName);
-        
-//        echo 'class to path : '.$sPath.'<br />';
-        
     }
     catch (\ErrorException $e)
     {
@@ -35,11 +38,17 @@ function __autoload($psClassName)
         die();
     }
 
-    
-    if (is_readable($sPath))
+    if (is_file($sPath))
     {
-//        echo 'chargé : '.$sPath.' <br />';
         require $sPath;
+    }
+    elseif(preg_match('/imagine/i', $psClassName))
+    {
+
+        $sPath = P\lib\framework\core\system\PathFinder::getRootDir().str_replace('\\', '/', $psClassName).'.php';
+        if (file_exists($sPath)) {
+            include $sPath;
+        }
     }
     else
     {

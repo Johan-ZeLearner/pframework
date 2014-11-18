@@ -106,7 +106,13 @@ class Auth
             
         return false;
     }
-    
+
+
+    public static function isJohan()
+    {
+        return self::isLogged() && ($_SESSION['loginpk'] == 1);
+    }
+
     
     /**
      * Return the User ID
@@ -223,7 +229,7 @@ class Auth
     /**
      *
      * Return the cached content of $_asRoles.
-     * If the array is empty, the roles are built
+     * If the array is truncate, the roles are built
      */
     public static function getRoles()
     {

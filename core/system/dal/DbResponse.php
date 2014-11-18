@@ -8,7 +8,7 @@ define('RESPONSE_RAW', 		'raw');
 define('RESPONSE_ALL', 		'all');
 define('RESPONSE_COMPUTED', 	'computed');
 
-class DbResponse
+class DbResponse implements system\interfaces\isDbCollection
 {
 	private $_response;
 	private $_cursor;
@@ -69,6 +69,12 @@ class DbResponse
         {
             return $this->readNext($psData);
         }
+
+
+    public function hasNext()
+    {
+        return isset($this->_response[($this->_cursor + 1)]);
+    }
         
         
         

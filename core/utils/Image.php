@@ -5,7 +5,7 @@ class Image
 {
     private $filepath;
     private $imagick;
-    private $outputPath;
+    static $outputPath = '';
     private $fail = false;
     
     
@@ -22,13 +22,10 @@ class Image
             return false;
         }
         
-        
         $this->filepath     = $psFilename;
-        $this->outputPath   = $psOutputPath;
+        self::$outputPath   = $psOutputPath;
         
         Debug::$log = false;
-        if (preg_match('/345\.jpg/', $psFilename))
-            Debug::$log = false;
     }
 
     
@@ -59,6 +56,8 @@ class Image
     {
         if (!is_object($this->imagick)) return 'http://placehold.it/'.$pnWidth.'x'.$pnHeight;
        
+        if ($this->fail) {return false;}
+        
         $this->_resize($pnWidth, $pnHeight, false, true);
         
         Debug::log('----------------------------------------------------------------------');
@@ -109,7 +108,11 @@ class Image
     
     public function resizeFill($pnWidth, $pnHeight, $psFinalPath)
     {
-        $asGeo = $this->imagick->getimagegeometry();
+        if (is_file($psFinalPath)) { return $this->getPublicPath($psFinalPath); }
+        if ($this->fail) {return false;}
+        if (!is_object($this->imagick)) {return false;}
+        
+        $asGeo          = $this->imagick->getimagegeometry();
         
         $bBiggerWidth   = $this->_isLarger($pnWidth, $asGeo['width']);
         $bBiggerHeight  = $this->_isLarger($pnHeight, $asGeo['height']);
@@ -331,16 +334,18 @@ class Image
     
     public function save($psOutput)
     {
-        $sRoot = \P\lib\framework\core\system\PathFinder::getRootDir('public');
-        
         $this->imagick->writeImage($psOutput);
         
-        @chmod($psOutput, 0777);
+        chmod($psOutput, 0777);
         
-        $sReturn = str_replace($sRoot, '/'.$this->outputPath, $psOutput);
-
-        
-        return $sReturn;
+        return $this->getPublicPath($psOutput);
+    }
+    
+    
+    public static function getPublicPath($finalPath)
+    {
+        $sRoot = \P\lib\framework\core\system\PathFinder::getRootDir('public');
+        return str_replace($sRoot, '/'.self::$outputPath, $finalPath);
     }
 }
 ?>

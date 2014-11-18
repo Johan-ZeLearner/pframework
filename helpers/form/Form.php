@@ -28,13 +28,18 @@ class Form
         public      $crud = false;
         public      $name;
         public      $title;
+        public      $ajax = false;
+        public      $ajaxUrl = '';
+        public      $displayButtons = true;
+        public      $callback = 'pageFormSubmitReturn';
         
+    
         private $_model;
         
 	/**
 	 * Constructor of the class.
 	 * It set the main Dal of the form for auto populating field values
-	 * By default, populate is true but you can specify an empty form instance
+	 * By default, populate is true but you can specify an truncate form instance
 	 *
 	 * @param Boolean 				$pbPopulate
 	 */
@@ -54,14 +59,26 @@ class Form
             $this->initialize();
             
             if (utils\Http::isPosted() && !empty($this->_fields))
+            {
                 $this->populateFromPost();
-            
+            }
 
             // @TODO : trouver solution au JS qui "oublie" certains champs
             
 //            utils\Debug::e($this->_fields);
 	}
         
+        public function setAjax()
+        {
+            $this->ajax = true;
+        }
+
+
+        public function setAjaxUrl($url)
+        {
+            $this->ajaxUrl = $url;
+        }
+
 
 	/**
 	 * For inheritance only
@@ -135,7 +152,7 @@ class Form
 	public function getId()
 	{
             if (!isset($this->_params['id']))
-                    $this->_params['id'] = uniqid('form_');
+                $this->_params['id'] = uniqid('form_');
 
             return $this->_params['id'];
 	}
@@ -151,7 +168,7 @@ class Form
 	 */
 	public function setParam($psParam, $psValue)
 	{
-            if (empty($psParam)) throw new \ErrorException('Param must not be empty');
+            if (empty($psParam)) throw new \ErrorException('Param must not be truncate');
 
             $this->_params[$psParam] = $psValue;
 	}
@@ -315,7 +332,7 @@ class Form
 	 *
 	 * @return String $sOutput
 	 */
-	public function getForm()
+	public function  getForm()
 	{
             $this->addThemeVar('params', \P\lib\framework\helpers\Params::serialize($this->_params, '_'));
             
@@ -328,11 +345,17 @@ class Form
             if ($this->_bAjax)
             {
                 $oSubmit->id        = $this->_ajaxId;
+                $this->ajax         = true;
             }
 
+            $this->addThemeVar('ajax', $this->ajax);
+            $this->addThemeVar('ajaxUrl', $this->ajaxUrl);
             $this->addThemeVar('submit', $oSubmit);
             $this->addThemeVar('fields', $this->_fields);
             $this->addThemeVar('title', $this->getTitle());
+            $this->addThemeVar('id', $this->getId());
+            $this->addThemeVar('callback', $this->callback);
+            $this->addThemeVar('displayButtons', $this->displayButtons);
 
             $this->theme->current_form = $this->_themeValues;
             
@@ -481,7 +504,9 @@ class Form
 
             $this->_ajaxId = uniqid('ajax_');
             if (!empty($psAjaxId))
+            {
                 $this->_ajaxId = $psAjaxId;
+            }
 	}
 	
 	
@@ -552,14 +577,13 @@ class Form
                 }
                else
                {
-//                    utils\Debug::e($oField->_field->getName());
+//                    utils\Debug::e($oField);
 //                    utils\Debug::e(utils\Http::getParam($oField->_field->getName()));
                    
                    $oField->setValue(utils\Http::getParam($oField->_field->getName()));
                }
             }
             
-//            utils\Debug::e('OK from post');
 //            
 //            utils\Debug::e($this->_fields);
 	}
